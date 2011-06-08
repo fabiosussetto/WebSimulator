@@ -14,9 +14,9 @@ from PyQt4.QtWebKit import *
 
 class Form(QDialog):
     
-    def __init__(self, application, parent=None):
+    def __init__(self, parent=None):
         super(Form, self).__init__(parent)
-        self.simulator = simulation.Simulator(application)
+        self.simulator = simulation.Simulator()
         
         self.urlBar = QLineEdit()
         self.urlGo = QPushButton("Vai")
@@ -60,6 +60,6 @@ if __name__ == '__main__':
 
 
 app = QApplication(sys.argv)
-form = Form(app) 
+form = Form() 
 form.show() 
 app.exec_()

@@ -23,11 +23,11 @@ class Simulator(object):
     _jquery = 'jquery-1.6.1.js'
     _jquery_simulate = 'jquery.simulate.js'
 
-    def __init__(self, application):
+    def __init__(self):
         '''
         Constructor
         '''
-        self.application = application
+        #self.application = application
         self.webpage = QWebPage()
         #self.webpage.userAgentForUrl = 'test'
         self.webframe = self.webpage.mainFrame()
@@ -72,7 +72,9 @@ class Simulator(object):
         return res    
         
     def _wait_load(self, timeout=None):
-        self.application.processEvents()
+        #return
+        app = QApplication.instance()
+        app.processEvents()
         if self._load_status is not None:
             load_status = self._load_status
             self._load_status = None
@@ -81,11 +83,11 @@ class Simulator(object):
         while self._load_status is None:
             if timeout and time.time() - itime > timeout:
                 raise SpynnerTimeout("Timeout reached: %d seconds" % timeout)
-            self.application.processEvents()
-        self.application.processEvents()    
-        if self._load_status:
+            app.processEvents()
+        app.processEvents()    
+        #if self._load_status:
             #self.load_js()
-            self.webpage.setViewportSize(self.webpage.mainFrame().contentsSize())
+            #self.webpage.setViewportSize(self.webpage.mainFrame().contentsSize())
         load_status = self._load_status
         self._load_status = None
         return load_status
