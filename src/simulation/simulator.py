@@ -6,8 +6,10 @@ Created on May 31, 2011
 
 import os
 import time
+import pyquery
+import re
 
-from PyQt4.QtCore import SIGNAL, QUrl, QString, Qt, QEvent
+from PyQt4.QtCore import pyqtSignal, SIGNAL, QUrl, QString, Qt, QObject, QEvent
 from PyQt4.QtCore import QSize, QDateTime, QPoint
 from PyQt4.QtGui import QApplication, QImage, QPainter
 from PyQt4.QtGui import QCursor, QMouseEvent, QKeyEvent
@@ -16,18 +18,21 @@ from PyQt4.QtNetwork import QNetworkCookieJar, QNetworkRequest, QNetworkProxy
 from PyQt4.QtWebKit import QWebPage, QWebView
 
 
-class Simulator(object):
+class Simulator(QObject):
     '''
     classdocs
     '''
     _jquery = 'jquery-1.6.1.js'
     _jquery_simulate = 'jquery.simulate.js'
+    
+    loadingPage = pyqtSignal()
+    pageLoaded = pyqtSignal()
 
     def __init__(self):
         '''
         Constructor
         '''
-        #self.application = application
+        super(Simulator, self).__init__()
         self.webpage = QWebPage()
         #self.webpage.userAgentForUrl = 'test'
         self.webframe = self.webpage.mainFrame()
@@ -50,9 +55,12 @@ class Simulator(object):
         
     def _on_load_started(self):
         self._load_status = None
+        #self.emit(SIGNAL("loadingPage"))
+        self.loadingPage.emit()
     
     def _on_load_finished(self, successful):
         self._load_status = successful
+        self.pageLoaded.emit()
         self.load_js()
     
     
@@ -61,18 +69,28 @@ class Simulator(object):
         self.webframe.load(QUrl(url))
         return self._wait_load()
 
-    def click(self, selector, wait_load=False, wait_requests=None, timeout=None):
+    def click(self, selector, wait_load=False, timeout=None):
         jscode = "%s('%s').simulate('click');" % (self.jslib, selector)
         self.runjs(jscode)
-        return self._wait_load(timeout)
-        #self.wait_requests(wait_requests)
+        if wait_load:
+            return self._wait_load(timeout)
+        return True
+    
+    def clickLinkMatching(self, pattern, selector='a', wait_load=False, timeout=None):
+        jscode = "%s('%s').filter(function(){ return /%s/i.test(%s(this).text()); }).first().simulate('click');" % (self.jslib, selector, pattern, self.jslib)
+        print 'qui'
+        print jscode
+        self.runjs(jscode)
+        if wait_load:
+            return self._wait_load(timeout)
+        return True
         
     def runjs(self, jscode, debug=True):
         res = self.webframe.evaluateJavaScript(jscode)
+        self.webframe.evaluateJavaScript('$();')
         return res    
         
     def _wait_load(self, timeout=None):
-        #return
         app = QApplication.instance()
         app.processEvents()
         if self._load_status is not None:
@@ -122,7 +140,26 @@ class Simulator(object):
         escaped_value = value.replace("'", "\\'")
         jscode = "%s('%s').val('%s');" % (self.jslib, selector, escaped_value)
         self.runjs(jscode)
-        self.runjs('$();')
+        
+    def assertTextMatch(self, regex, selector):
+        #TODO: avoid rebuild parse tree
+        self.parser = pyquery.PyQuery(self.html)
+        found_html = self.parser(selector).html();
+        result = re.search(regex, found_html, re.I)
+        print "---------------"
+        print found_html
+        if result:
+            print "Test passed: found '%s' at '%s'" % (regex, selector)
+        else:
+            print "Test failed: can't find '%s' at '%s'" % (regex, selector)
+        
+    def _get_html(self):
+        return unicode(self.webframe.toHtml())
+    
+    # Properties
+
+    html = property(_get_html)
+    """Rendered HTML in current page."""
 
 class SpynnerError(Exception):
     """General Spynner error."""
