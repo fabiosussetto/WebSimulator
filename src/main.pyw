@@ -52,6 +52,7 @@ class Form(QDialog):
         
     def _onSimulateClicked(self):
         self.simulator.click('#menu1 > li:first > a', True)
+        self.simulator.assertPageTitle(r"orari e acquisto")
         self.simulator.fill('#stazin', 'torino')
         self.simulator.fill('#stazout', 'milano')
         self.simulator.click('.btnInviaCrusc', True)

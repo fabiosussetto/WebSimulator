@@ -69,7 +69,10 @@ class Simulator(QObject):
         self.webframe.load(QUrl(url))
         return self._wait_load()
 
-    def click(self, selector, wait_load=False, timeout=None):
+    def click(self, selector, wait_load=False, timeout=None, assert_exists=True):
+        if assert_exists and not self.assertExists(selector):
+            raise DomElementNotFound(selector)
+        
         jscode = "%s('%s').simulate('click');" % (self.jslib, selector)
         self.runjs(jscode)
         if wait_load:
@@ -78,8 +81,6 @@ class Simulator(QObject):
     
     def clickLinkMatching(self, pattern, selector='a', wait_load=False, timeout=None):
         jscode = "%s('%s').filter(function(){ return /%s/i.test(%s(this).text()); }).first().simulate('click');" % (self.jslib, selector, pattern, self.jslib)
-        print 'qui'
-        print jscode
         self.runjs(jscode)
         if wait_load:
             return self._wait_load(timeout)
@@ -135,11 +136,22 @@ class Simulator(QObject):
         """Load jquery in the current frame"""
         self.runjs(self.jquery_simulate, debug=False)
         
-    def fill(self, selector, value):
+    def fill(self, selector, value, assert_exists=True, assert_visible=True):
         """Fill an input text with a string value using a jQuery selector."""
         escaped_value = value.replace("'", "\\'")
+        if assert_exists and not self.assertExists(selector):
+            raise DomElementNotFound(selector)
+        
+        if assert_visible and not self.assertVisible(selector):
+            raise DomElementNotVisible(selector)
+            
         jscode = "%s('%s').val('%s');" % (self.jslib, selector, escaped_value)
         self.runjs(jscode)
+        
+    def assertPageTitle(self, regex):
+        title = self.webframe.title()
+        if not re.search(regex, title, re.I):
+            raise Exception("Page title '%s' does not match '%s'" % (title, regex))
         
     def assertTextMatch(self, regex, selector):
         #TODO: avoid rebuild parse tree
@@ -152,6 +164,16 @@ class Simulator(QObject):
             print "Test passed: found '%s' at '%s'" % (regex, selector)
         else:
             print "Test failed: can't find '%s' at '%s'" % (regex, selector)
+    
+    def assertExists(self, selector):
+        jscode = "%s('%s').length" % (self.jslib, selector)
+        result = self.runjs(jscode).toBool()
+        return result
+    
+    def assertVisible(self, selector):
+        jscode = "%s('%s').is(':visible')" % (self.jslib, selector)
+        result = self.runjs(jscode).toBool()
+        return result
         
     def _get_html(self):
         return unicode(self.webframe.toHtml())
@@ -160,6 +182,26 @@ class Simulator(QObject):
 
     html = property(_get_html)
     """Rendered HTML in current page."""
+    
+    
+class DomAssertion(Exception):
+    
+    def __init__(self, msg):
+        self.msg = msg
+        
+    def __str__(self): 
+        return self.msg   
+    
+    
+class DomElementNotFound(DomAssertion):
+    
+    def __init__(self, selector):
+        super(DomElementNotFound, self).__init__("Can't find DOM element at '%s'" % selector)
+    
+class DomElementNotVisible(Exception):
+    
+    def __init__(self, selector):
+        super(DomElementNotVisible, self).__init__("The DOM element at '%s' is not visible by the user" % selector)
 
 class SpynnerError(Exception):
     """General Spynner error."""
