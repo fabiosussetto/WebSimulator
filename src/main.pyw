@@ -10,6 +10,7 @@ import simulation
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
+from test_cases import wp3testcase, wp2testcase
 
 
 class Form(QDialog):
@@ -48,20 +49,14 @@ class Form(QDialog):
         
         self.setWindowTitle("Test Webkit")
         self.resize(1100, 650)
-        self.simulator.load('http://www.trenitalia.it')
+        
         
     def _onSimulateClicked(self):
-        self.simulator.click('#menu1 > li:first > a', True)
-        self.simulator.assertPageTitle(r"orari e acquisto")
-        self.simulator.fill('#stazin', 'torino')
-        self.simulator.fill('#stazout', 'milano')
-        self.simulator.click('.btnInviaCrusc', True)
+        test_case = wp3testcase.Wp3TestCase(self.simulator)
+        test_case.run()
         
-        self.simulator.assertTextMatch('torino', '.detagglio td:first')
-        self.simulator.assertTextMatch('milano', '.detagglio td:eq(1)')
-        
-        self.simulator.click('form[name=dati] table:eq(1) input[type=radio]:first')
-        self.simulator.clickLinkMatching('procedi', 'a')
+        test_case = wp2testcase.Wp2TestCase(self.simulator)
+        test_case.run()
         
     
     def _onLoadingPage(self):

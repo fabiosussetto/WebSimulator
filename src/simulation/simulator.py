@@ -69,7 +69,7 @@ class Simulator(QObject):
         self.webframe.load(QUrl(url))
         return self._wait_load()
 
-    def click(self, selector, wait_load=False, timeout=None, assert_exists=True):
+    def click(self, selector, wait_load=True, timeout=None, assert_exists=True):
         if assert_exists and not self.assertExists(selector):
             raise DomElementNotFound(selector)
         
@@ -79,7 +79,17 @@ class Simulator(QObject):
             return self._wait_load(timeout)
         return True
     
-    def clickLinkMatching(self, pattern, selector='a', wait_load=False, timeout=None):
+    def clickNearestTo(self, target, near_to, top_parent,  wait_load=True, timeout=None, assert_exists=True):
+        if assert_exists and not self.assertExists(near_to):
+            raise DomElementNotFound(near_to)
+        
+        jscode = "%s('%s').closest('%s').find('%s').simulate('click');" % (self.jslib, near_to, top_parent, target)
+        self.runjs(jscode)
+        if wait_load:
+            return self._wait_load(timeout)
+        return True
+    
+    def clickLinkMatching(self, pattern, selector='a', wait_load=True, timeout=None):
         jscode = "%s('%s').filter(function(){ return /%s/i.test(%s(this).text()); }).first().simulate('click');" % (self.jslib, selector, pattern, self.jslib)
         self.runjs(jscode)
         if wait_load:
@@ -148,22 +158,61 @@ class Simulator(QObject):
         jscode = "%s('%s').val('%s');" % (self.jslib, selector, escaped_value)
         self.runjs(jscode)
         
+    def select(self, selector, value, assert_exists=True, assert_visible=True):
+        escaped_value = value.replace("'", "\\'")
+        if assert_exists and not self.assertExists(selector):
+            raise DomElementNotFound(selector)
+        
+        if assert_visible and not self.assertVisible(selector):
+            raise DomElementNotVisible(selector)
+            
+        jscode = "%s('%s').val('%s');" % (self.jslib, selector, escaped_value)
+        self.runjs(jscode)    
+        
+    def sendText(self, selector, text, keyboard_modifiers = Qt.NoModifier, wait_load=False, wait_requests=None, timeout=None):
+        """
+        Send text in any element (to fill it for example)
+
+        @param selector: QtWebkit Selector
+        @param keys to input in the QT way
+        @param wait_load: If True, it will wait until a new page is loaded.
+        @param timeout: Seconds to wait for the page to load before
+                                       raising an exception.
+        @param wait_requests: How many requests to wait before returning. Useful
+                              for AJAX requests.
+
+        >>> br.sendKeys('#val_cel_dentifiant', 'fancy text')
+        """
+        element = self.webframe.findFirstElement(selector)
+        element.setFocus()
+        eventp = QKeyEvent(QEvent.KeyPress, Qt.Key_A, keyboard_modifiers, QString(text))
+        app = QApplication.instance()
+        app.sendEvent(self.webview, eventp)
+        #self._events_loop(timeout)
+        #self.wait_requests(wait_requests)
+        if wait_load:
+            return self._wait_load(timeout)    
+        
     def assertPageTitle(self, regex):
         title = self.webframe.title()
         if not re.search(regex, title, re.I):
             raise Exception("Page title '%s' does not match '%s'" % (title, regex))
         
+    def assertInputValue(self, regex, selector):
+        jscode = "%s('%s').val()" % (self.jslib, selector)
+        result = self.runjs(jscode).toString()
+        if not re.search(regex, result, re.I):
+            raise Exception("Input value at '%s' does not match '%s', found '%s'" % (selector, regex, result))
+        
     def assertTextMatch(self, regex, selector):
         #TODO: avoid rebuild parse tree
         self.parser = pyquery.PyQuery(self.html)
         found_html = self.parser(selector).html();
+        if not found_html:
+            raise Exception("Could not find DOM element at '%s'" % selector)
         result = re.search(regex, found_html, re.I)
-        print "---------------"
-        print found_html
-        if result:
-            print "Test passed: found '%s' at '%s'" % (regex, selector)
-        else:
-            print "Test failed: can't find '%s' at '%s'" % (regex, selector)
+        if not result:
+            raise Exception("Could not find text '%s' inside DOM element at '%s'" % (regex, selector))
     
     def assertExists(self, selector):
         jscode = "%s('%s').length" % (self.jslib, selector)
@@ -178,10 +227,15 @@ class Simulator(QObject):
     def _get_html(self):
         return unicode(self.webframe.toHtml())
     
+    def _get_current_url(self):
+        return self.webframe.url().toString()
+    
     # Properties
 
     html = property(_get_html)
     """Rendered HTML in current page."""
+    
+    current_url = property(_get_current_url)
     
     
 class DomAssertion(Exception):

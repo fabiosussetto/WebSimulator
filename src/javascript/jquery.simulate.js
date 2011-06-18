@@ -8,6 +8,7 @@
  */
 
 ;(function($) {
+  
 $.fn.extend({
 	simulate: function(type, options) {
 		return this.each(function() {
