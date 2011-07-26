@@ -7,7 +7,7 @@
  *
  */
 
-;(function($) {
+(function($) {
   
 $.fn.extend({
 	simulate: function(type, options) {
@@ -149,3 +149,4 @@ $.extend($.simulate, {
 });
 
 })(jQuery);
+

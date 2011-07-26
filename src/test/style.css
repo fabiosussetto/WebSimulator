@@ -1,0 +1,42 @@
+* { margin: 0; padding: 0}
+
+body {
+  background: #eee;
+}
+
+#container {
+  width: 950px;
+  margin: 10px auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 20px;
+}
+
+#sidebar {
+  float: left;
+  width: 250px;
+}
+
+#sidebar ul {
+  margin-bottom: 20px;
+	padding: 5px;
+	background: #eee;
+}
+
+#current a {
+  color: green;
+}
+
+#content {
+  float: left;
+  width: 690px;   
+	margin-left: 10px;
+}
+
+.clear {
+  clear: both;
+}
+      
+.selected {
+	background: yellow !important;    
+}

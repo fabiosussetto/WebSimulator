@@ -22,6 +22,7 @@ class Form(QDialog):
         self.urlBar = QLineEdit()
         self.urlGo = QPushButton("Vai")
         self.btnSimulate = QPushButton("Run test")
+        self.btnPicker = QPushButton("Picker")
         self.connect(self.btnSimulate, SIGNAL("clicked()"), self._onSimulateClicked)
         
         self.simulator.createView()
@@ -36,34 +37,45 @@ class Form(QDialog):
         self.loadingLabel.setAlignment(Qt.AlignCenter)
         self.loadingLabel.hide()
         
+        self.pathLabel = QLabel()
+        #self.pathLabel.hide()
+        
         urlLayout = QHBoxLayout()
         urlLayout.addWidget(self.urlBar)
         urlLayout.addWidget(self.urlGo)
+        urlLayout.addWidget(self.btnPicker)
         
         layout = QVBoxLayout()
         layout.addLayout(urlLayout)
         layout.addWidget(self.browser)
         layout.addWidget(self.loadingLabel)
+        layout.addWidget(self.pathLabel)
         layout.addWidget(self.btnSimulate)
         self.setLayout(layout)
         
         self.setWindowTitle("Test Webkit")
         self.resize(1100, 650)
         
+        self.simulator.load_js()
+        self.simulator.load('http://wptesi/wp_3-1-3/')
+        
         
     def _onSimulateClicked(self):
         test_case = wp3testcase.Wp3TestCase(self.simulator)
         test_case.run()
         
-        test_case = wp2testcase.Wp2TestCase(self.simulator)
-        test_case.run()
+        #test_case = wp2testcase.Wp2TestCase(self.simulator)
+        #test_case.run()
         
     
     def _onLoadingPage(self):
         self.loadingLabel.show()  
         
     def _onPageLoaded(self):
-        self.loadingLabel.hide()  
+        self.loadingLabel.hide()
+        
+    def _onPathPicked(self, path):
+        self.pathLabel.setText(path)
         
 if __name__ == '__main__':
     pass

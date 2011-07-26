@@ -9,14 +9,23 @@ import time
 import pyquery
 import re
 
-from PyQt4.QtCore import pyqtSignal, SIGNAL, QUrl, QString, Qt, QObject, QEvent
-from PyQt4.QtCore import QSize, QDateTime, QPoint
-from PyQt4.QtGui import QApplication, QImage, QPainter
-from PyQt4.QtGui import QCursor, QMouseEvent, QKeyEvent
+#from PyQt4.QtCore import pyqtSignal, SIGNAL, QUrl, QString, Qt, QObject, QEvent
+#from PyQt4.QtCore import QSize, QDateTime, QPoint
+#from PyQt4.QtGui import QApplication, QImage, QPainter
+#from PyQt4.QtGui import QCursor, QMouseEvent, QKeyEvent
 from PyQt4.QtNetwork import QNetworkCookie, QNetworkAccessManager
 from PyQt4.QtNetwork import QNetworkCookieJar, QNetworkRequest, QNetworkProxy
-from PyQt4.QtWebKit import QWebPage, QWebView
+#from PyQt4.QtWebKit import QWebPage, QWebView
 
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from PyQt4.QtWebKit import *
+
+class Picker(QObject): 
+    
+    @pyqtSignature("QString")
+    def setPath(self, path):
+        print path
 
 class Simulator(QObject):
     '''
@@ -27,6 +36,7 @@ class Simulator(QObject):
     
     loadingPage = pyqtSignal()
     pageLoaded = pyqtSignal()
+    pathPicked = pyqtSignal()
 
     def __init__(self):
         '''
@@ -42,6 +52,7 @@ class Simulator(QObject):
         
         self.jquery = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery)).read()
         self.jquery_simulate = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery_simulate)).read()
+        self.jquery_picker = open(os.path.join(os.path.dirname(__file__), "../test/picker.js")).read()
         
         self.jslib = '$'
         self._load_status = None
@@ -131,6 +142,8 @@ class Simulator(QObject):
     def load_js(self):
         self.load_jquery()
         self.load_jquery_simulate()
+        self.load_jquery_picker()
+        self.webframe.addToJavaScriptWindowObject("_Picker", Picker())
         #self.load_additional_js()
         
     def get_js_obj_length(self, res):
@@ -145,6 +158,10 @@ class Simulator(QObject):
     def load_jquery_simulate(self, force=False):
         """Load jquery in the current frame"""
         self.runjs(self.jquery_simulate, debug=False)
+        
+    def load_jquery_picker(self, force=False):
+        """Load jquery picker"""
+        self.runjs(self.jquery_picker, debug=False)    
         
     def fill(self, selector, value, assert_exists=True, assert_visible=True):
         """Fill an input text with a string value using a jQuery selector."""
@@ -165,6 +182,9 @@ class Simulator(QObject):
         
         if assert_visible and not self.assertVisible(selector):
             raise DomElementNotVisible(selector)
+        
+        if not self.assertExists("%s > option[value=%s]" % (selector, value)):
+            raise Exception("Could not find an option with value '%s' for select at '%s'" % (value, selector))
             
         jscode = "%s('%s').val('%s');" % (self.jslib, selector, escaped_value)
         self.runjs(jscode)    

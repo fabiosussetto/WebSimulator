@@ -15,12 +15,20 @@ class TestCase(object):
         #print inspect.getmembers(self, lambda method: re.match("test", method))
         test_methods = inspect.getmembers(self, self._isTestMethod)
         test_methods.sort(key=self.linenumber_of_member)
+        getattr(self, 'startCase')()
         for method in test_methods:
             print "Executing test case %s ..." % method[0]
             getattr(self, 'setUp')()
             getattr(self, method[0])()
             getattr(self, 'tearDown')()
             print "... completed"
+        getattr(self, 'endCase')()
+            
+    def startCase(self):
+        return True
+
+    def endCase(self):
+        return True
     
     def setUp(self):
         return True
