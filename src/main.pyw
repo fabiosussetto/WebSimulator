@@ -7,29 +7,43 @@ Created on May 2, 2011
 import sys
 import time
 import simulation
+from recording import actions, picker
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
 from test_cases import wp3testcase, wp2testcase
+import qrc_resources
+import ui
 
-
-class Form(QDialog):
+class MainWindow(QMainWindow):
     
     def __init__(self, parent=None):
-        super(Form, self).__init__(parent)
-        self.simulator = simulation.Simulator()
+        super(MainWindow, self).__init__(parent)
+        
+        #self.model = actions.ActionListModel()
+        self.actionsModel = actions.treeModel()
+        
+        self.simulator = simulation.Simulator(self.actionsModel)
+        
+        self.mainSplitter = QSplitter(Qt.Horizontal, self)
+        self.setCentralWidget(self.mainSplitter)
+        splitterLeft = QWidget()
+        splitterRight = QWidget()
+        self.mainSplitter.addWidget(splitterLeft)
+        self.mainSplitter.addWidget(splitterRight)
         
         self.urlBar = QLineEdit()
         self.urlGo = QPushButton("Vai")
         self.btnSimulate = QPushButton("Run test")
-        self.btnPicker = QPushButton("Picker")
         self.connect(self.btnSimulate, SIGNAL("clicked()"), self._onSimulateClicked)
         
         self.simulator.createView()
         self.browser = self.simulator.getWidget()
+        self.browser.setMinimumWidth(900)
         
         self.connect(self.simulator, SIGNAL("loadingPage()"), self._onLoadingPage)
         self.connect(self.simulator, SIGNAL("pageLoaded()"), self._onPageLoaded)
+        self.connect(self.simulator.picker, SIGNAL("pathPicked(PyQt_PyObject)"), self._onPathPicked)
         
         self.browser.show()
         
@@ -43,22 +57,45 @@ class Form(QDialog):
         urlLayout = QHBoxLayout()
         urlLayout.addWidget(self.urlBar)
         urlLayout.addWidget(self.urlGo)
-        urlLayout.addWidget(self.btnPicker)
         
-        layout = QVBoxLayout()
+        self.treeWidget = QTreeView()
+        self.treeWidget.setModel(self.actionsModel)
+        
+        self.btnRemoveAction = QToolButton()
+        self.btnRemoveAction.setText('-')
+        self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
+        
+        rightLayout = QVBoxLayout(splitterRight)
+        #self.actionsToolbar = QToolBar()
+        #self.actionsToolbar.addAction(QAction(QIcon(":/pipette.png"), QString("Picker"), self))
+        #self.actionsToolbar.addAction(QAction(QString("Bar"), self))
+        #rightLayout.addWidget(self.actionsToolbar)
+        rightLayout.addWidget(self.treeWidget)
+        rightLayout.addWidget(self.btnRemoveAction)
+        
+        
+        layout = QVBoxLayout(splitterLeft)
         layout.addLayout(urlLayout)
         layout.addWidget(self.browser)
         layout.addWidget(self.loadingLabel)
         layout.addWidget(self.pathLabel)
-        layout.addWidget(self.btnSimulate)
-        self.setLayout(layout)
+        #layout.addWidget(self.btnSimulate)
         
         self.setWindowTitle("Test Webkit")
-        self.resize(1100, 650)
+        self.setMinimumSize(1200, 600)
+        
+        #editMenu = self.menuBar().addMenu("Edit")
+        #editToolbar = self.addToolBar("Edit")
+        self.buildActions()
         
         self.simulator.load_js()
-        self.simulator.load('http://wptesi/wp_3-1-3/')
+        self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         
+    def openAssertionDlg(self, pickedData):
+        self.assertionDlg = ui.AssertionDlg(self.actionsModel, pickedData, self)
+        if self.assertionDlg.exec_():
+            pass
+            #data = self.assertionDlg.data
         
     def _onSimulateClicked(self):
         test_case = wp3testcase.Wp3TestCase(self.simulator)
@@ -67,6 +104,14 @@ class Form(QDialog):
         #test_case = wp2testcase.Wp2TestCase(self.simulator)
         #test_case.run()
         
+    def _onPickerClicked(self):
+        self.simulator.togglePicker()
+        
+    def _onRecordClicked(self, checked):
+        self.simulator.logger.setEnable(checked)
+        
+    def _onRemoveActionClicked(self):
+        self.actionsModel.removeRows(self.treeWidget.currentIndex().row())    
     
     def _onLoadingPage(self):
         self.loadingLabel.show()  
@@ -74,14 +119,42 @@ class Form(QDialog):
     def _onPageLoaded(self):
         self.loadingLabel.hide()
         
-    def _onPathPicked(self, path):
-        self.pathLabel.setText(path)
+    def _onPathPicked(self, pickedData):
+        self.pathLabel.setText(pickedData.selector)
+        #self.openAssertionDlg(pickedData)
+        
+    def _onNewAssertionClicked(self):
+        self.openAssertionDlg(self.simulator.picker.pickedData)
+        
+    def buildActions(self):
+        pickerAction = self.createAction("Invert", self._onPickerClicked, "Ctrl+P", "pipette", "Toggle picker", True, "toggled(bool)")
+        recordAction = self.createAction("Record", self._onRecordClicked, "Ctrl+R", "record", "Toggle recording", True, "toggled(bool)")
+        newAssertionAction = self.createAction("New assertion", self._onNewAssertionClicked, "Ctrl+A", "eye", "New assertion")
+        saveAction = self.createAction("Save", None, "Ctrl+S", "disk", "Save recorded session")
+        mainToolbar = self.addToolBar("Recording")
+        mainToolbar.addActions((pickerAction, recordAction, newAssertionAction, saveAction))
+        
+    def createAction(self, text, slot=None, shortcut=None, icon=None, tip=None, checkable=False, signal="triggered()"):
+        action = QAction(text, self) 
+        if icon is not None:
+            action.setIcon(QIcon(":/%s.png" % icon)) 
+        if shortcut is not None:
+            action.setShortcut(shortcut) 
+        if tip is not None:
+            action.setToolTip(tip)
+            action.setStatusTip(tip) 
+        if slot is not None:
+            self.connect(action, SIGNAL(signal), slot) 
+        if checkable:
+            action.setCheckable(True)
+        return action    
+        
         
 if __name__ == '__main__':
     pass
 
 
 app = QApplication(sys.argv)
-form = Form() 
+form = MainWindow() 
 form.show() 
 app.exec_()

@@ -43,42 +43,45 @@ function Overlay(width, height, left, top) {
     };     
 
     this.render = function render(width, height, left, top) {
+      this.resize(width, height, left, top);
+      topbox.css({
+        top:   this.top,
+        left:  this.left,
+        width: this.width
+      });
+      bottombox.css({
+        top:   this.top + this.height - 1,
+        left:  this.left,
+        width: this.width
+      });
+      leftbox.css({
+        top:    this.top, 
+        left:   this.left, 
+        height: this.height
+      });
+      rightbox.css({
+        top:    this.top, 
+        left:   this.left + this.width - 1, 
+        height: this.height  
+      });
         
-        this.resize(width, height, left, top);
-
-        topbox.css({
-          top:   this.top,
-          left:  this.left,
-          width: this.width
-        });
-        bottombox.css({
-          top:   this.top + this.height - 1,
-          left:  this.left,
-          width: this.width
-        });
-        leftbox.css({
-          top:    this.top, 
-          left:   this.left, 
-          height: this.height
-        });
-        rightbox.css({
-          top:    this.top, 
-          left:   this.left + this.width - 1, 
-          height: this.height  
-        });
-          
-        this.show();
+      this.show();
     };      
-
     // initial rendering [optional]
-    this.render(width, height, left, top);
+    //this.render(width, height, left, top);
   }
     
   
   // test
   var box = new Overlay(200, 200, 400, 20);
   
+  __pickerEnabled = false;
+  
   $("body").mouseover(function(e){
+    if (__pickerEnabled == false) {
+      box.hide();
+      return true;
+    }
     var el = $(e.target);
     var offset = el.offset();
     box.render(el.outerWidth(), el.outerHeight(), offset.left, offset.top);
@@ -87,6 +90,9 @@ function Overlay(width, height, left, top) {
   //$('#sidebar ul li:nth-child(0)').css('border', '1px solid green'); 
 
   $('*').click(function(e){
+    if (__pickerEnabled == false) {
+      return true;
+    }
     e.preventDefault();
     var path = [];
     
@@ -94,7 +100,8 @@ function Overlay(width, height, left, top) {
     path = buildPath($this, path);
     //console.debug(path.join(' '));  
     //alert(path.join(' '));
-    _Picker.setPath(path.join(' '));
+    pickedPath = path.join(' ')
+    _Picker.setPath(pickedPath, $this[0].tagName, $this.text());
 		//$('.selected').removeClass('selected');
 		//$(path.join(' ')).addClass('selected');
     return false;
@@ -132,6 +139,48 @@ function Overlay(width, height, left, top) {
        
     return buildPath(curr_elem.parent(), path); 
   }
+  
+  // Logger
+  
+  $(':text, :password, textarea').live('blur', function(){
+    var $this = $(this);
+    var path = buildPath($this, []);
+    var val = $this.val();
+    var labelText = "";
+    var $label = null;
+    
+    var id = $this.attr('id');
+    if (id !== undefined) {
+      $label = $('label[for=' + id + ']'); 
+      if ($label.length) {
+        labelText = $label.text();  
+      } else { 
+        $label = $this.closest('label')
+        if ($label.length) {
+          labelText = $label.text();
+        }
+      }
+    }
+    if (val.length > 0) {
+      _Logger.content(path, $this.val(), $.trim(labelText));
+    }
+  });
+  $(':checkbox').click(function(){
+    var $this = $(this);
+    var path = buildPath($this, []);
+    _Logger.checkbox(path, $this.val());
+  });
+  $('a').click(function(){
+    var $this = $(this);
+    var path = buildPath($this, []);
+    _Logger.link(path);
+  });
+  $(':submit').click(function(){
+    var $this = $(this);
+    var path = buildPath($this, []);
+    _Logger.submit(path);
+  });
+  
   
 });
 

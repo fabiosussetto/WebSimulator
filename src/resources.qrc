@@ -1,0 +1,9 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <file alias="pipette.png">images/pipette.png</file>
+    <file alias="record.png">images/record.png</file>
+    <file alias="disk.png">images/disk.png</file>
+    <file alias="eye.png">images/eye.png</file>
+  </qresource>
+</RCC>      

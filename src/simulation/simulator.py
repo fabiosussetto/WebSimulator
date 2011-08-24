@@ -20,12 +20,56 @@ from PyQt4.QtNetwork import QNetworkCookieJar, QNetworkRequest, QNetworkProxy
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
+from recording import actions, picker
 
 class Picker(QObject): 
     
+    pathPicked = pyqtSignal("PyQt_PyObject")
+    
+    enabled = False
+    
+    currentPath = None
+    
+    pickedData = None
+    
+    @pyqtSignature("QString, QString, QString")
+    def setPath(self, selector, elementType, value=None):
+        self.currentPath = selector
+        self.pickedData = picker.PickedData(selector, elementType, value)
+        self.pathPicked.emit(self.pickedData)
+        
+class Logger(QObject): 
+    
+    def __init__(self):
+        super(Logger, self).__init__()
+        self.enabled = False
+    
+    def setEnable(self, enable):
+        self.enabled = enable
+    
+    def setModel(self, model):
+        self.model = model
+        
+    def _recordAction(self, action):
+        if self.enabled:
+            self.model.insertRows(action, self.model.rowCount())
+    
+    @pyqtSignature("QString, QString, QString")
+    def content(self, path, value, label=None):
+        self._recordAction(actions.UserAction("Fill input", "fill", path, value, label))
+    
+    @pyqtSignature("QString, QString")
+    def checkbox(self, path, value):
+        print "%s : %s" % (path, value)
+    
     @pyqtSignature("QString")
-    def setPath(self, path):
-        print path
+    def link(self, path):
+        self._recordAction(actions.UserAction("Click link", "link", path))
+        
+    @pyqtSignature("QString")
+    def submit(self, path):
+        self._recordAction(actions.UserAction("Submit form", "submit", path))
+        
 
 class Simulator(QObject):
     '''
@@ -38,7 +82,7 @@ class Simulator(QObject):
     pageLoaded = pyqtSignal()
     pathPicked = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, model):
         '''
         Constructor
         '''
@@ -53,9 +97,14 @@ class Simulator(QObject):
         self.jquery = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery)).read()
         self.jquery_simulate = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery_simulate)).read()
         self.jquery_picker = open(os.path.join(os.path.dirname(__file__), "../test/picker.js")).read()
+        self.jquery_logger = open(os.path.join(os.path.dirname(__file__), "../test/logger.js")).read()
         
         self.jslib = '$'
         self._load_status = None
+        
+        self.picker = Picker();
+        self.logger = Logger();
+        self.logger.setModel(model)
         
     def createView(self):
         self.webview = QWebView()
@@ -143,7 +192,9 @@ class Simulator(QObject):
         self.load_jquery()
         self.load_jquery_simulate()
         self.load_jquery_picker()
-        self.webframe.addToJavaScriptWindowObject("_Picker", Picker())
+        self.load_jquery_logger()
+        self.webframe.addToJavaScriptWindowObject("_Picker", self.picker)
+        self.webframe.addToJavaScriptWindowObject("_Logger", self.logger)
         #self.load_additional_js()
         
     def get_js_obj_length(self, res):
@@ -161,7 +212,11 @@ class Simulator(QObject):
         
     def load_jquery_picker(self, force=False):
         """Load jquery picker"""
-        self.runjs(self.jquery_picker, debug=False)    
+        self.runjs(self.jquery_picker, debug=False)
+        
+    def load_jquery_logger(self, force=False):
+        """Load jquery logger"""
+        self.runjs(self.jquery_logger, debug=False)
         
     def fill(self, selector, value, assert_exists=True, assert_visible=True):
         """Fill an input text with a string value using a jQuery selector."""
@@ -249,6 +304,13 @@ class Simulator(QObject):
     
     def _get_current_url(self):
         return self.webframe.url().toString()
+    
+    def togglePicker(self):
+        val = 'false' if self.picker.enabled else 'true'
+            
+        jscode = "__pickerEnabled = %s;" % val
+        self.runjs(jscode, False)
+        self.picker.enabled = not self.picker.enabled
     
     # Properties
 
