@@ -123,6 +123,11 @@ class Simulator(QObject):
         self.pageLoaded.emit()
         self.load_js()
     
+    def play(self, playActions):
+        for action in playActions:
+            if isinstance(action, actions.UserAction):
+                if action.type == 'fill':
+                    self.fill(action.selector, action.value)
     
     def load(self, url):
         """Load a web page and return status (a boolean)."""

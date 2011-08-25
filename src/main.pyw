@@ -21,8 +21,8 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__(parent)
         
         #self.model = actions.ActionListModel()
-        self.actionsModel = actions.treeModel()
         
+        self.actionsModel = actions.treeModel()
         self.simulator = simulation.Simulator(self.actionsModel)
         
         self.mainSplitter = QSplitter(Qt.Horizontal, self)
@@ -64,6 +64,10 @@ class MainWindow(QMainWindow):
         self.btnRemoveAction = QToolButton()
         self.btnRemoveAction.setText('-')
         self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
+
+        self.btnPlayAction = QToolButton()
+        self.btnPlayAction.setText('Play')
+        self.connect(self.btnPlayAction, SIGNAL("clicked()"), self._onPlayActionClicked)
         
         rightLayout = QVBoxLayout(splitterRight)
         #self.actionsToolbar = QToolBar()
@@ -72,6 +76,7 @@ class MainWindow(QMainWindow):
         #rightLayout.addWidget(self.actionsToolbar)
         rightLayout.addWidget(self.treeWidget)
         rightLayout.addWidget(self.btnRemoveAction)
+        rightLayout.addWidget(self.btnPlayAction)
         
         
         layout = QVBoxLayout(splitterLeft)
@@ -112,6 +117,9 @@ class MainWindow(QMainWindow):
         
     def _onRemoveActionClicked(self):
         self.actionsModel.removeRows(self.treeWidget.currentIndex().row())    
+        
+    def _onPlayActionClicked(self):
+        self.simulator.play(self.actionsModel.actions)
     
     def _onLoadingPage(self):
         self.loadingLabel.show()  
@@ -126,11 +134,16 @@ class MainWindow(QMainWindow):
     def _onNewAssertionClicked(self):
         self.openAssertionDlg(self.simulator.picker.pickedData)
         
+    def _onSaveActionsClicked(self):
+        fname = QFileDialog.getSaveFileName(self, "Save recorded actions", QString(""), "Action XML files (*.xml)")
+        if self.actionsModel.saveToXml(fname): 
+            self.statusBar().showMessage("Recorded actions saved to file %s" % fname, 2000)   
+        
     def buildActions(self):
         pickerAction = self.createAction("Invert", self._onPickerClicked, "Ctrl+P", "pipette", "Toggle picker", True, "toggled(bool)")
         recordAction = self.createAction("Record", self._onRecordClicked, "Ctrl+R", "record", "Toggle recording", True, "toggled(bool)")
         newAssertionAction = self.createAction("New assertion", self._onNewAssertionClicked, "Ctrl+A", "eye", "New assertion")
-        saveAction = self.createAction("Save", None, "Ctrl+S", "disk", "Save recorded session")
+        saveAction = self.createAction("Save", self._onSaveActionsClicked, "Ctrl+S", "disk", "Save recorded session")
         mainToolbar = self.addToolBar("Recording")
         mainToolbar.addActions((pickerAction, recordAction, newAssertionAction, saveAction))
         

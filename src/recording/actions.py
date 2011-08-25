@@ -4,6 +4,7 @@ Created on Aug 22, 2011
 @author: fabio
 '''
 from PyQt4.QtCore import *
+import xml.etree.ElementTree as Et
 
 class Action(object):
     
@@ -11,22 +12,38 @@ class Action(object):
         self.value = None
         self.selector = None
         self.type = None
+        
+    def toXML(self):
+        element = Et.Element("action")
+        return element
 
 
 class UserAction(Action):
 
     def __init__(self, description, type, selector, value=None, label=None):
         super(UserAction, self).__init__()
-        self.type = QString(type)
-        self.description = QString(description)
-        self.selector = QString(selector)
-        self.value = None
-        self.label = None
+        self.type = type
+        self.description = description
+        self.selector = unicode(selector)
+        self.value = unicode(None)
+        self.label = unicode(None)
         if value:
-            self.value = QString(value)
+            self.value = unicode(value)
         if label:
-            self.label = QString(label)
+            self.label = unicode(label)
             self.description += ' for ' + self.label
+            
+    def play(self):
+        pass
+            
+    def toXML(self):
+        element = Et.Element("useraction")
+        element.set("type", "fill")
+        selector = Et.SubElement(element, "selector")
+        selector.set("path", self.selector)
+        content = Et.SubElement(element, "content", {"value": self.value})
+        #content.set("value", self.value)
+        return element
         
 class AssertAction(Action):
     
@@ -35,6 +52,16 @@ class AssertAction(Action):
         self.description = 'Assert'
         self.selector = selector
         self.value = value
+        
+    def toXML(self):
+        element = Et.Element("assertion")
+        element.set("type", "AssertAction")
+        selector = Et.SubElement(element, "selector")
+        selector.set("path", self.selector)
+        content = Et.SubElement(element, "content")
+        content.set("value", self.value)
+        return element
+            
         
 class AssertContentAction(AssertAction):
     
@@ -252,4 +279,31 @@ class treeModel(QAbstractItemModel):
         
     def removeItem(self, position):
         self.rootItem.removeChild(position)
-
+        
+    def saveToXml(self, fname):
+        if fname.isEmpty():
+            return False
+        if not fname.contains("."): fname += ".xml"
+        root = Et.Element('actions')
+        for action in self.actions:
+            root.append(action.toXML())
+        self.indent(root)
+        tree = Et.ElementTree(root)
+        tree.write(fname, xml_declaration=True, encoding='utf-8', method="xml")
+        return True
+    
+    def indent(self, elem, level=0):
+        i = "\n" + level*"  "
+        if len(elem):
+            if not elem.text or not elem.text.strip():
+                elem.text = i + "  "
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+            for elem in elem:
+                self.indent(elem, level+1)
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+        else:
+            if level and (not elem.tail or not elem.tail.strip()):
+                elem.tail = i
+            
