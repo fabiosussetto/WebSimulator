@@ -162,23 +162,23 @@ function Overlay(width, height, left, top) {
       }
     }
     if (val.length > 0) {
-      _Logger.content(path, $this.val(), $.trim(labelText));
+      _Logger.fill(path, $this.val(), $.trim(labelText));
     }
   });
   $(':checkbox').click(function(){
     var $this = $(this);
     var path = buildPath($this, []);
-    _Logger.checkbox(path, $this.val());
+    _Logger.checkbox(path.join(' '), $this.val());
   });
   $('a').click(function(){
     var $this = $(this);
     var path = buildPath($this, []);
-    _Logger.link(path);
+    _Logger.link(path.join(' '), $this.text());
   });
   $(':submit').click(function(){
     var $this = $(this);
     var path = buildPath($this, []);
-    _Logger.submit(path);
+    _Logger.submit(path.join(' '), $this.attr('value'));
   });
   
   

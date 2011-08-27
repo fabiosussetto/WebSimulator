@@ -60,6 +60,7 @@ class MainWindow(QMainWindow):
         
         self.treeWidget = QTreeView()
         self.treeWidget.setModel(self.actionsModel)
+        self.connect(self.simulator, SIGNAL("startPlayAction(int)"), self._onStartPlayAction)
         
         self.btnRemoveAction = QToolButton()
         self.btnRemoveAction.setText('-')
@@ -77,7 +78,6 @@ class MainWindow(QMainWindow):
         rightLayout.addWidget(self.treeWidget)
         rightLayout.addWidget(self.btnRemoveAction)
         rightLayout.addWidget(self.btnPlayAction)
-        
         
         layout = QVBoxLayout(splitterLeft)
         layout.addLayout(urlLayout)
@@ -138,6 +138,10 @@ class MainWindow(QMainWindow):
         fname = QFileDialog.getSaveFileName(self, "Save recorded actions", QString(""), "Action XML files (*.xml)")
         if self.actionsModel.saveToXml(fname): 
             self.statusBar().showMessage("Recorded actions saved to file %s" % fname, 2000)   
+    
+    def _onStartPlayAction(self, index):
+        #self.treeWidget.selectionModel().select(self.actionsModel.index(index))
+        self.treeWidget.setCurrentIndex(self.actionsModel.index(index, 0, QModelIndex()))
         
     def buildActions(self):
         pickerAction = self.createAction("Invert", self._onPickerClicked, "Ctrl+P", "pipette", "Toggle picker", True, "toggled(bool)")

@@ -20,10 +20,9 @@ class Action(object):
 
 class UserAction(Action):
 
-    def __init__(self, description, type, selector, value=None, label=None):
+    def __init__(self, selector, value=None, label=None):
         super(UserAction, self).__init__()
-        self.type = type
-        self.description = description
+        self.description = "User action"
         self.selector = unicode(selector)
         self.value = unicode(None)
         self.label = unicode(None)
@@ -33,9 +32,6 @@ class UserAction(Action):
             self.label = unicode(label)
             self.description += ' for ' + self.label
             
-    def play(self):
-        pass
-            
     def toXML(self):
         element = Et.Element("useraction")
         element.set("type", "fill")
@@ -44,6 +40,24 @@ class UserAction(Action):
         content = Et.SubElement(element, "content", {"value": self.value})
         #content.set("value", self.value)
         return element
+    
+class FillAction(UserAction):
+    
+    def __init__(self, selector, value, label=""):
+        super(FillAction, self).__init__(selector, value, label)
+        self.description = "Fill input for '%s'" % label
+        
+class ClickLinkAction(UserAction):
+    
+    def __init__(self, selector, text=""):
+        super(ClickLinkAction, self).__init__(selector)
+        self.description = "Click link '%s'" % text 
+        
+class ClickButtonAction(UserAction):
+    
+    def __init__(self, selector, text=""):
+        super(ClickButtonAction, self).__init__(selector)
+        self.description = "Click button '%s'" % text 
         
 class AssertAction(Action):
     
@@ -84,30 +98,25 @@ class ActionContainer(object):
         self.dirty = False
         self.actions = {}
 
-
     def action(self, identity):
         return self.actions.get(identity)
 
-        
     def addAction(self, action):
         self.actions[id(action)] = action
         self.dirty = True
-
 
     def removeAction(self, action):
         del self.actions[id(action)]
         del action
         self.dirty = True
 
-
     def __len__(self):
         return len(self.actions)
-
 
     def __iter__(self):
         for action in self.actions.values():
             yield action
-            
+
             
 class ActionListModel(QAbstractListModel):
 
@@ -188,7 +197,7 @@ class treeModel(QAbstractItemModel):
         self.setupModelData()
 
     def columnCount(self, parent=None):
-        return 1
+        return 2
 
     def data(self, index, role):
         if not index.isValid():

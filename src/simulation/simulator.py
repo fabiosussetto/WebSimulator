@@ -55,20 +55,20 @@ class Logger(QObject):
             self.model.insertRows(action, self.model.rowCount())
     
     @pyqtSignature("QString, QString, QString")
-    def content(self, path, value, label=None):
-        self._recordAction(actions.UserAction("Fill input", "fill", path, value, label))
+    def fill(self, path, value, label=None):
+        self._recordAction(actions.FillAction(path, value, label))
     
     @pyqtSignature("QString, QString")
     def checkbox(self, path, value):
         print "%s : %s" % (path, value)
     
-    @pyqtSignature("QString")
-    def link(self, path):
-        self._recordAction(actions.UserAction("Click link", "link", path))
+    @pyqtSignature("QString, QString")
+    def link(self, path, text=""):
+        self._recordAction(actions.ClickLinkAction(path, text))
         
-    @pyqtSignature("QString")
-    def submit(self, path):
-        self._recordAction(actions.UserAction("Submit form", "submit", path))
+    @pyqtSignature("QString, QString")
+    def submit(self, path, text=""):
+        self._recordAction(actions.ClickButtonAction(path, text))
         
 
 class Simulator(QObject):
@@ -81,6 +81,7 @@ class Simulator(QObject):
     loadingPage = pyqtSignal()
     pageLoaded = pyqtSignal()
     pathPicked = pyqtSignal()
+    startPlayAction = pyqtSignal(int)
 
     def __init__(self, model):
         '''
@@ -124,11 +125,15 @@ class Simulator(QObject):
         self.load_js()
     
     def play(self, playActions):
-        for action in playActions:
-            if isinstance(action, actions.UserAction):
-                if action.type == 'fill':
-                    self.fill(action.selector, action.value)
-    
+        for index, action in enumerate(playActions):
+            self.startPlayAction.emit(index)
+            if isinstance(action, actions.FillAction):
+                self.fill(action.selector, action.value)
+            elif isinstance(action, (actions.ClickLinkAction, actions.ClickButtonAction)):
+                self.click(action.selector)
+            else:
+                raise "Unsupported action to play"
+                
     def load(self, url):
         """Load a web page and return status (a boolean)."""
         self.webframe.load(QUrl(url))
