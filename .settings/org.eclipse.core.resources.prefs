@@ -1,5 +1,7 @@
-#Wed Aug 24 13:40:17 CEST 2011
+#Mon Aug 29 17:56:15 CEST 2011
 eclipse.preferences.version=1
 encoding//src/pyquery/__init__.py=utf-8
 encoding//src/pyquery/cssselectpatch.py=utf-8
 encoding//src/pyquery/pyquery.py=utf-8
+encoding//src/pyquery/rules.py=utf-8
+encoding//src/pyquery/test.py=utf-8

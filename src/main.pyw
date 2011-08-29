@@ -25,12 +25,15 @@ class MainWindow(QMainWindow):
         self.actionsModel = actions.treeModel()
         self.simulator = simulation.Simulator(self.actionsModel)
         
+        #self.simulator.assertTextMatch('password', "#loginform label:nth-child(1)")
+        #exit()
+        
         self.mainSplitter = QSplitter(Qt.Horizontal, self)
         self.setCentralWidget(self.mainSplitter)
         splitterLeft = QWidget()
         splitterRight = QWidget()
+        splitterRight.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self.mainSplitter.addWidget(splitterLeft)
-        self.mainSplitter.addWidget(splitterRight)
         
         self.urlBar = QLineEdit()
         self.urlGo = QPushButton("Vai")
@@ -70,14 +73,25 @@ class MainWindow(QMainWindow):
         self.btnPlayAction.setText('Play')
         self.connect(self.btnPlayAction, SIGNAL("clicked()"), self._onPlayActionClicked)
         
-        rightLayout = QVBoxLayout(splitterRight)
-        #self.actionsToolbar = QToolBar()
-        #self.actionsToolbar.addAction(QAction(QIcon(":/pipette.png"), QString("Picker"), self))
-        #self.actionsToolbar.addAction(QAction(QString("Bar"), self))
-        #rightLayout.addWidget(self.actionsToolbar)
+        rightTabs = QTabWidget()
+        self.mainSplitter.addWidget(rightTabs)
+        actionsTab = QWidget()
+        actionsTab.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        
+        rightTabs.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        
+        assertionsTab = QWidget()
+        rightTabs.addTab(actionsTab, "Actions")
+        rightTabs.addTab(assertionsTab, "Assertions")
+        
+        rightLayout = QVBoxLayout(actionsTab)
+        
         rightLayout.addWidget(self.treeWidget)
-        rightLayout.addWidget(self.btnRemoveAction)
-        rightLayout.addWidget(self.btnPlayAction)
+        actionsToolbox = QHBoxLayout()
+        actionsToolbox.setAlignment(Qt.AlignLeft)
+        rightLayout.addLayout(actionsToolbox)
+        actionsToolbox.addWidget(self.btnRemoveAction)
+        actionsToolbox.addWidget(self.btnPlayAction)
         
         layout = QVBoxLayout(splitterLeft)
         layout.addLayout(urlLayout)
@@ -137,7 +151,12 @@ class MainWindow(QMainWindow):
     def _onSaveActionsClicked(self):
         fname = QFileDialog.getSaveFileName(self, "Save recorded actions", QString(""), "Action XML files (*.xml)")
         if self.actionsModel.saveToXml(fname): 
-            self.statusBar().showMessage("Recorded actions saved to file %s" % fname, 2000)   
+            self.statusBar().showMessage("Recorded actions saved to file %s" % fname, 2000) 
+            
+    def _onOpenActionsClicked(self):
+        fname = QFileDialog.getOpenFileName(self, "Choose a session file", QString(""), "Action XML files (*.xml)")
+        if self.actionsModel.loadFromXml(fname): 
+            self.statusBar().showMessage("Opened file %s" % fname, 2000) 
     
     def _onStartPlayAction(self, index):
         #self.treeWidget.selectionModel().select(self.actionsModel.index(index))
@@ -148,8 +167,9 @@ class MainWindow(QMainWindow):
         recordAction = self.createAction("Record", self._onRecordClicked, "Ctrl+R", "record", "Toggle recording", True, "toggled(bool)")
         newAssertionAction = self.createAction("New assertion", self._onNewAssertionClicked, "Ctrl+A", "eye", "New assertion")
         saveAction = self.createAction("Save", self._onSaveActionsClicked, "Ctrl+S", "disk", "Save recorded session")
+        openAction = self.createAction("Open", self._onOpenActionsClicked, "Ctrl+O", "folder", "Open saved session")
         mainToolbar = self.addToolBar("Recording")
-        mainToolbar.addActions((pickerAction, recordAction, newAssertionAction, saveAction))
+        mainToolbar.addActions((pickerAction, recordAction, newAssertionAction, saveAction, openAction))
         
     def createAction(self, text, slot=None, shortcut=None, icon=None, tip=None, checkable=False, signal="triggered()"):
         action = QAction(text, self) 

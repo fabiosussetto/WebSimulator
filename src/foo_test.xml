@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Username" type="fill">
+    <selector path="#user_login" />
+    <content value="admin" />
+  </useraction>
+  <useraction label="Password" type="fill">
+    <selector path="#user_pass" />
+    <content value="cactus" />
+  </useraction>
+  <useraction text="Log In" type="clickbutton">
+    <selector path="#wp-submit" />
+  </useraction>
+  <useraction text="Add New" type="clicklink">
+    <selector path="#menu-posts .wp-submenu:nth-child(4) UL LI:nth-child(2) A" />
+  </useraction>
+  <assertion type="content">
+    <selector path="#user_info" />
+    <content value="howdy" />
+  </assertion>
+  <assertion type="content">
+    <selector path="#wpbody-content .wrap:nth-child(3) h2" />
+    <content value="Add New Post" />
+  </assertion>
+  <assertion type="content">
+    <selector path="#wphead" />
+    <content value="failing content" />
+  </assertion>
+  <useraction text="Posts" type="clicklink">
+    <selector path="#menu-posts .wp-submenu:nth-child(4) UL .wp-first-item:nth-child(1) .wp-first-item" />
+  </useraction>
+</actions>

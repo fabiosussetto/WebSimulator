@@ -5,5 +5,6 @@
     <file alias="record.png">images/record.png</file>
     <file alias="disk.png">images/disk.png</file>
     <file alias="eye.png">images/eye.png</file>
+    <file alias="folder.png">images/folder.png</file>
   </qresource>
 </RCC>      

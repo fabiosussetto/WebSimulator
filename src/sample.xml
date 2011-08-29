@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <assertion type="content">
+    <selector path="#nav" />
+    <content value="password" />
+  </assertion>
+</actions>

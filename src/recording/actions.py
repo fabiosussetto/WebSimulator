@@ -4,7 +4,9 @@ Created on Aug 22, 2011
 @author: fabio
 '''
 from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 import xml.etree.ElementTree as Et
+from xml.etree.ElementTree import tostring
 
 class Action(object):
     
@@ -16,6 +18,31 @@ class Action(object):
     def toXML(self):
         element = Et.Element("action")
         return element
+    
+    def fromXML(node):
+        tag = node.tag
+        if tag == "useraction":
+            type = node.get("type")
+            if type == "fill":
+                selector = node.find("selector")
+                content = node.find("content")
+                return FillAction(selector.get("path"), content.get("value"), node.get("label"))
+            elif type == "clicklink":
+                selector = node.find("selector")
+                return ClickLinkAction(selector.get("path"), node.get("text"))
+            elif type == "clickbutton":
+                selector = node.find("selector")
+                return ClickButtonAction(selector.get("path"), node.get("text"))
+        elif tag == "assertion":
+            type = node.get("type")
+            if type == "content":
+                selector = node.find("selector")
+                content = node.find("content")
+                return AssertContentAction(selector.get("path"), content.get("value"))
+        else:
+            raise Exception("Invalid tag type")
+    
+    fromXML = staticmethod(fromXML)
 
 
 class UserAction(Action):
@@ -32,56 +59,71 @@ class UserAction(Action):
             self.label = unicode(label)
             self.description += ' for ' + self.label
             
-    def toXML(self):
-        element = Et.Element("useraction")
-        element.set("type", "fill")
-        selector = Et.SubElement(element, "selector")
-        selector.set("path", self.selector)
-        content = Et.SubElement(element, "content", {"value": self.value})
-        #content.set("value", self.value)
-        return element
-    
 class FillAction(UserAction):
     
     def __init__(self, selector, value, label=""):
         super(FillAction, self).__init__(selector, value, label)
+        label = unicode(label)
         self.description = "Fill input for '%s'" % label
+        
+    def toXML(self):
+        element = Et.Element("useraction")
+        element.set("type", "fill")
+        element.set("label", self.label)
+        Et.SubElement(element, "selector", {"path": self.selector})
+        Et.SubElement(element, "content", {"value": self.value})
+        return element
         
 class ClickLinkAction(UserAction):
     
     def __init__(self, selector, text=""):
         super(ClickLinkAction, self).__init__(selector)
-        self.description = "Click link '%s'" % text 
+        self.text = unicode(text)
+        self.description = "Click link '%s'" % self.text
+         
+    def toXML(self):
+        element = Et.Element("useraction")
+        element.set("type", "clicklink")
+        element.set("text", self.text)
+        Et.SubElement(element, "selector", {"path": self.selector})
+        return element
         
 class ClickButtonAction(UserAction):
     
     def __init__(self, selector, text=""):
         super(ClickButtonAction, self).__init__(selector)
-        self.description = "Click button '%s'" % text 
+        self.text = unicode(text)
+        self.description = "Click button '%s'" % self.text
+        
+    def toXML(self):
+        element = Et.Element("useraction")
+        element.set("type", "clickbutton")
+        element.set("text", self.text)
+        Et.SubElement(element, "selector", {"path": self.selector})
+        return element 
         
 class AssertAction(Action):
     
     def __init__(self, selector, value):
         super(AssertAction, self).__init__()
         self.description = 'Assert'
-        self.selector = selector
-        self.value = value
+        self.selector = unicode(selector)
+        self.value = unicode(value)
+        self.passed = None
         
-    def toXML(self):
-        element = Et.Element("assertion")
-        element.set("type", "AssertAction")
-        selector = Et.SubElement(element, "selector")
-        selector.set("path", self.selector)
-        content = Et.SubElement(element, "content")
-        content.set("value", self.value)
-        return element
-            
         
 class AssertContentAction(AssertAction):
     
     def __init__(self, selector, value):
         super(AssertContentAction, self).__init__(selector, value)
         self.description = 'Assert contain'
+        
+    def toXML(self):
+        element = Et.Element("assertion")
+        element.set("type", "content")
+        Et.SubElement(element, "selector", {"path": self.selector})
+        Et.SubElement(element, "content", {"value": self.value})
+        return element
         
 class AssertPresenceAction(Action):
     
@@ -152,10 +194,16 @@ class TreeItem(object):
     a python object used to return row/column data, and keep note of
     it's parents and/or children
     '''
-    def __init__(self, value, parentItem):
+    
+    MAIN_NODE = 0
+    DETAIL_NODE = 1
+    
+    def __init__(self, type, value, parentItem, action = None):
         self.parentItem = parentItem
         self.childItems = []
         self.value = value
+        self.type = type
+        self.action = action
 
     def appendChild(self, item):
         self.childItems.append(item)
@@ -173,6 +221,8 @@ class TreeItem(object):
         return 1
     
     def data(self, column):
+        if self.type == self.MAIN_NODE:
+            return self.action
         return QVariant(self.value)
 
     def parent(self):
@@ -184,20 +234,18 @@ class TreeItem(object):
         return 0    
                         
 class treeModel(QAbstractItemModel):
-    '''
-    a model to display a few names, ordered by sex
-    '''
+
     def __init__(self, parent=None):
         super(treeModel, self).__init__(parent)
         self.actions = []
             
-        self.rootItem = TreeItem(None, None)
-        self.parents = {0 : self.rootItem}
+        self.rootItem = TreeItem(None, None, None)
+        #self.parents = {0 : self.rootItem}
         self.parents = [self.rootItem]
         self.setupModelData()
 
     def columnCount(self, parent=None):
-        return 2
+        return 1
 
     def data(self, index, role):
         if not index.isValid():
@@ -205,10 +253,16 @@ class treeModel(QAbstractItemModel):
 
         item = index.internalPointer()
         if role == Qt.DisplayRole:
-            return item.data(index.column())
+            return QVariant(item.value)
         if role == Qt.UserRole:
             if item:
                 return item.value
+        if role == Qt.BackgroundRole:
+            if isinstance(item.action, AssertAction):
+                if item.action.passed == True: 
+                    return QVariant(QBrush(QColor("green")))
+                elif item.action.passed == False:
+                    return QVariant(QBrush(QColor("red")))
 
         return QVariant()
 
@@ -268,21 +322,31 @@ class treeModel(QAbstractItemModel):
         self.dirty = True 
         return True
     
+    def removeAllRows(self):
+        self.beginRemoveRows(QModelIndex(), 0, self.rowCount()) 
+        self.actions = []
+        for position in range(0, self.rowCount()):
+            self.removeItem(position) 
+        self.endRemoveRows()
+        self.dirty = True 
+        return True
+        
+    
     def setupModelData(self):
         for action in self.actions:
             self.addItem(action)
     
     def addItem(self, action):
-        newparent = TreeItem(action.description, self.rootItem)
-        newparent.appendChild(TreeItem("Selector: %s" % action.selector, newparent))
+        newparent = TreeItem(TreeItem.MAIN_NODE, action.description, self.rootItem, action)
+        newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Selector: %s" % action.selector, newparent))
         
         actionClass = action.__class__.__name__
         if actionClass == "AssertContentAction":
-            newparent.appendChild(TreeItem("Value: %s" % action.value, newparent))
+            newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Value: %s" % action.value, newparent))
         elif actionClass == "AssertPresenceAction":
-            newparent.appendChild(TreeItem("Check visibility: %s" % action.checkVisibility, newparent))
+            newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Check visibility: %s" % action.checkVisibility, newparent))
         elif actionClass == "UserAction":
-            newparent.appendChild(TreeItem("Value: %s" % action.value, newparent))    
+            newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Value: %s" % action.value, newparent))    
         self.parents.append(newparent)
         self.rootItem.appendChild(newparent)
         
@@ -300,6 +364,20 @@ class treeModel(QAbstractItemModel):
         tree = Et.ElementTree(root)
         tree.write(fname, xml_declaration=True, encoding='utf-8', method="xml")
         return True
+    
+    def loadFromXml(self, fname):
+        #TODO: alert if changes are made to the currently recorded actions
+        tree = Et.ElementTree(file=fname)
+        root = tree.getroot()
+        actionNodes = list(root)
+        loadedActions = []
+        for actionNode in actionNodes:
+            loadedActions.append(Action.fromXML(actionNode))
+                
+        self.removeAllRows()                
+        self.actions = loadedActions
+        self.setupModelData()
+        self.reset()
     
     def indent(self, elem, level=0):
         i = "\n" + level*"  "

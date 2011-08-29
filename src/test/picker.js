@@ -181,7 +181,23 @@ function Overlay(width, height, left, top) {
     _Logger.submit(path.join(' '), $this.attr('value'));
   });
   
+  // Assertions
+  function Assertion() {
+    
+    this.contentMatch = function contentMatch(text, selector) {
+      var element = $(selector);
+      if (element.length === 0) {
+        return false;
+      }
+      regex = new RegExp(text, "i");
+      return regex.test(element.text());
+    }; 
+  }
+  
+  _assert = new Assertion();
   
 });
 
 })(jQuery);
+
+

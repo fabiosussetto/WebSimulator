@@ -88,6 +88,7 @@ class Simulator(QObject):
         Constructor
         '''
         super(Simulator, self).__init__()
+        self.actionsModel = model
         self.webpage = QWebPage()
         #self.webpage.userAgentForUrl = 'test'
         self.webframe = self.webpage.mainFrame()
@@ -126,11 +127,20 @@ class Simulator(QObject):
     
     def play(self, playActions):
         for index, action in enumerate(playActions):
+            modelIndex = self.actionsModel.index(index, 0, QModelIndex())
             self.startPlayAction.emit(index)
             if isinstance(action, actions.FillAction):
                 self.fill(action.selector, action.value)
             elif isinstance(action, (actions.ClickLinkAction, actions.ClickButtonAction)):
                 self.click(action.selector)
+            elif isinstance(action, actions.AssertContentAction):
+                try:
+                    self.assertTextMatch(action.value, action.selector)
+                    self.actionsModel.actions[index].passed = True
+                except:
+                    self.actionsModel.actions[index].passed = False
+                self.actionsModel.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), modelIndex, modelIndex)
+                    
             else:
                 raise "Unsupported action to play"
                 
@@ -288,14 +298,26 @@ class Simulator(QObject):
         result = self.runjs(jscode).toString()
         if not re.search(regex, result, re.I):
             raise Exception("Input value at '%s' does not match '%s', found '%s'" % (selector, regex, result))
-        
+    """        
     def assertTextMatch(self, regex, selector):
         #TODO: avoid rebuild parse tree
         self.parser = pyquery.PyQuery(self.html)
-        found_html = self.parser(selector).html();
-        if not found_html:
+        #test = '<html><head></head><body><div id="no"></div><div id="test"><p>ba</p><p class="baa">ba</p><p class="wrap">miao <h2>Ciao</h2></p><p class="wrap">bello</p></div></body></html>'
+        #self.parser = pyquery.PyQuery(test)
+        selector = selector.encode('ascii')
+        #selector = "#test .wrap:nth-child(3) h2"
+        el = self.parser(selector);
+        if not el:
             raise Exception("Could not find DOM element at '%s'" % selector)
-        result = re.search(regex, found_html, re.I)
+        result = re.search(regex, el.text(), re.I)
+        if not result:
+            raise Exception("Could not find text '%s' inside DOM element at '%s'" % (regex, selector))
+    """
+    
+    def assertTextMatch(self, regex, selector):
+        jscode = "_assert.contentMatch('%s', '%s');" % (regex, selector)
+        result = self.runjs(jscode)
+        result = result.toBool()
         if not result:
             raise Exception("Could not find text '%s' inside DOM element at '%s'" % (regex, selector))
     
