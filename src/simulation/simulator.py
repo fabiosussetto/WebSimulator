@@ -22,6 +22,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
 from logger import *
 from picker import *
+from exceptions import *
 
 class Simulator(QObject):
     '''
@@ -50,6 +51,7 @@ class Simulator(QObject):
         
         self.jquery = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery)).read()
         self.jquery_simulate = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery_simulate)).read()
+        self.jquery_selector = open(os.path.join(os.path.dirname(__file__), "../test/selector_builder.js")).read()
         self.jquery_picker = open(os.path.join(os.path.dirname(__file__), "../test/picker.js")).read()
         self.jquery_logger = open(os.path.join(os.path.dirname(__file__), "../test/logger.js")).read()
         
@@ -163,6 +165,7 @@ class Simulator(QObject):
     def load_js(self):
         self.load_jquery()
         self.load_jquery_simulate()
+        self.load_jquery_selector()
         self.load_jquery_picker()
         self.load_jquery_logger()
         self.webframe.addToJavaScriptWindowObject("_Picker", self.picker)
@@ -185,6 +188,10 @@ class Simulator(QObject):
     def load_jquery_picker(self, force=False):
         """Load jquery picker"""
         self.runjs(self.jquery_picker, debug=False)
+        
+    def load_jquery_selector(self, force=False):
+        """Load jquery picker"""
+        self.runjs(self.jquery_selector, debug=False)
         
     def load_jquery_logger(self, force=False):
         """Load jquery logger"""
