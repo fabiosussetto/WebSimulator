@@ -20,56 +20,8 @@ from PyQt4.QtNetwork import QNetworkCookieJar, QNetworkRequest, QNetworkProxy
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
-from recording import actions, picker
-
-class Picker(QObject): 
-    
-    pathPicked = pyqtSignal("PyQt_PyObject")
-    
-    enabled = False
-    
-    currentPath = None
-    
-    pickedData = None
-    
-    @pyqtSignature("QString, QString, QString")
-    def setPath(self, selector, elementType, value=None):
-        self.currentPath = selector
-        self.pickedData = picker.PickedData(selector, elementType, value)
-        self.pathPicked.emit(self.pickedData)
-        
-class Logger(QObject): 
-    
-    def __init__(self):
-        super(Logger, self).__init__()
-        self.enabled = False
-    
-    def setEnable(self, enable):
-        self.enabled = enable
-    
-    def setModel(self, model):
-        self.model = model
-        
-    def _recordAction(self, action):
-        if self.enabled:
-            self.model.insertRows(action, self.model.rowCount())
-    
-    @pyqtSignature("QString, QString, QString")
-    def fill(self, path, value, label=None):
-        self._recordAction(actions.FillAction(path, value, label))
-    
-    @pyqtSignature("QString, QString")
-    def checkbox(self, path, value):
-        print "%s : %s" % (path, value)
-    
-    @pyqtSignature("QString, QString")
-    def link(self, path, text=""):
-        self._recordAction(actions.ClickLinkAction(path, text))
-        
-    @pyqtSignature("QString, QString")
-    def submit(self, path, text=""):
-        self._recordAction(actions.ClickButtonAction(path, text))
-        
+from logger import *
+from picker import *
 
 class Simulator(QObject):
     '''
@@ -351,34 +303,3 @@ class Simulator(QObject):
     
     current_url = property(_get_current_url)
     
-    
-class DomAssertion(Exception):
-    
-    def __init__(self, msg):
-        self.msg = msg
-        
-    def __str__(self): 
-        return self.msg   
-    
-    
-class DomElementNotFound(DomAssertion):
-    
-    def __init__(self, selector):
-        super(DomElementNotFound, self).__init__("Can't find DOM element at '%s'" % selector)
-    
-class DomElementNotVisible(Exception):
-    
-    def __init__(self, selector):
-        super(DomElementNotVisible, self).__init__("The DOM element at '%s' is not visible by the user" % selector)
-
-class SpynnerError(Exception):
-    """General Spynner error."""
-
-class SpynnerPageError(Exception):
-    """Error loading page."""
-
-class SpynnerTimeout(Exception):
-    """A timeout (usually on page load) has been reached."""
-    
-class SpynnerJavascriptError(Exception):
-    """Error on the injected Javascript code."""

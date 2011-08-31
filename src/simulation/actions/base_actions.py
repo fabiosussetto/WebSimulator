@@ -59,6 +59,15 @@ class UserAction(Action):
             self.label = unicode(label)
             self.description += ' for ' + self.label
             
+class AssertAction(Action):
+    
+    def __init__(self, selector, value):
+        super(AssertAction, self).__init__()
+        self.description = 'Assert'
+        self.selector = unicode(selector)
+        self.value = unicode(value)
+        self.passed = None            
+
 class FillAction(UserAction):
     
     def __init__(self, selector, value, label=""):
@@ -101,17 +110,7 @@ class ClickButtonAction(UserAction):
         element.set("text", self.text)
         Et.SubElement(element, "selector", {"path": self.selector})
         return element 
-        
-class AssertAction(Action):
-    
-    def __init__(self, selector, value):
-        super(AssertAction, self).__init__()
-        self.description = 'Assert'
-        self.selector = unicode(selector)
-        self.value = unicode(value)
-        self.passed = None
-        
-        
+            
 class AssertContentAction(AssertAction):
     
     def __init__(self, selector, value):
@@ -132,7 +131,7 @@ class AssertPresenceAction(Action):
         self.description = 'Assert presence'
         self.selector = selector
         self.checkVisibility = checkVisibility
-    
+
         
 class ActionContainer(object):   
     

@@ -7,7 +7,6 @@ Created on May 2, 2011
 import sys
 import time
 import simulation
-from recording import actions, picker
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
@@ -20,13 +19,8 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         
-        #self.model = actions.ActionListModel()
-        
-        self.actionsModel = actions.treeModel()
+        self.actionsModel = simulation.actions.treeModel()
         self.simulator = simulation.Simulator(self.actionsModel)
-        
-        #self.simulator.assertTextMatch('password', "#loginform label:nth-child(1)")
-        #exit()
         
         self.mainSplitter = QSplitter(Qt.Horizontal, self)
         self.setCentralWidget(self.mainSplitter)

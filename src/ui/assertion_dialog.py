@@ -1,6 +1,5 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from recording import actions
 
 class AssertionDlg(QDialog):
 
