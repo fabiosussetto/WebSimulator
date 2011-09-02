@@ -344,7 +344,7 @@ class treeModel(QAbstractItemModel):
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Value: %s" % action.value, newparent))
         elif actionClass == "AssertPresenceAction":
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Check visibility: %s" % action.checkVisibility, newparent))
-        elif actionClass == "UserAction":
+        elif actionClass == "FillAction":
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Value: %s" % action.value, newparent))    
         self.parents.append(newparent)
         self.rootItem.appendChild(newparent)
