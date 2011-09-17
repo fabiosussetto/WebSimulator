@@ -259,7 +259,7 @@ class treeModel(QAbstractItemModel):
         if role == Qt.BackgroundRole:
             if isinstance(item.action, AssertAction):
                 if item.action.passed == True: 
-                    return QVariant(QBrush(QColor("green")))
+                    return QVariant(QBrush(QColor("lightgreen")))
                 elif item.action.passed == False:
                     return QVariant(QBrush(QColor("red")))
 

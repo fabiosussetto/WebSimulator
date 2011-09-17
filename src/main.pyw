@@ -89,6 +89,7 @@ class MainWindow(QMainWindow):
         
         layout = QVBoxLayout(splitterLeft)
         layout.addLayout(urlLayout)
+        self.browser.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         layout.addWidget(self.browser)
         layout.addWidget(self.loadingLabel)
         layout.addWidget(self.pathLabel)
@@ -103,6 +104,7 @@ class MainWindow(QMainWindow):
         
         self.simulator.load_js()
         self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
+        #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         
     def openAssertionDlg(self, pickedData):
         self.assertionDlg = ui.AssertionDlg(self.actionsModel, pickedData, self)
