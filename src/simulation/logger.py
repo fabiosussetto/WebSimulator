@@ -3,12 +3,16 @@ import actions
 
 class Logger(QObject): 
     
+    enabled = False
+    
     def __init__(self):
         super(Logger, self).__init__()
-        self.enabled = False
     
     def setEnable(self, enable):
         self.enabled = enable
+        
+    def isEnabled(self):
+        return self.enabled    
     
     def setModel(self, model):
         self.model = model

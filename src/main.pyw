@@ -127,7 +127,7 @@ class MainWindow(QMainWindow):
             url = 'http://' + url
             self.urlBar.setText(url)
         self.simulator.load(url)
-        if self.simulator.logger.enabled:
+        if self.simulator.logger.isEnabled():
             self.actionsModel.insertRows(VisitAction(url), self.actionsModel.rowCount())
         
     def _onPickerClicked(self):

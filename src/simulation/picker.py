@@ -10,6 +10,15 @@ class Picker(QObject):
     
     pickedData = None
     
+    def toggleEnable(self):
+        self.enabled = not self.enabled
+    
+    def setEnable(self, enable):
+        self.enabled = enable
+        
+    def isEnabled(self):
+        return self.enabled
+    
     @pyqtSignature("QString, QString, QString")
     def setPath(self, selector, elementType, value=None):
         self.currentPath = selector
