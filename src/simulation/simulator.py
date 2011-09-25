@@ -34,7 +34,10 @@ class Simulator(QObject):
     loadingPage = pyqtSignal()
     pageLoaded = pyqtSignal()
     pathPicked = pyqtSignal()
+    startSimulation = pyqtSignal()
+    endSimulation = pyqtSignal()
     startPlayAction = pyqtSignal(int)
+    endPlayAction = pyqtSignal(int)
 
     def __init__(self, model):
         '''
@@ -79,28 +82,23 @@ class Simulator(QObject):
         self.load_js()
     
     def play(self, playActions):
+        self.startSimulation.emit()
         for index, action in enumerate(playActions):
             modelIndex = self.actionsModel.index(index, 0, QModelIndex())
             self.startPlayAction.emit(index)
-            if isinstance(action, actions.FillAction):
-                self.fill(action.selector, action.value)
-            elif isinstance(action, (actions.ClickLinkAction, actions.ClickButtonAction)):
-                self.click(action.selector)
-            elif isinstance(action, actions.AssertContentAction):
-                try:
-                    self.assertTextMatch(action.value, action.selector)
-                    self.actionsModel.actions[index].passed = True
-                except:
-                    self.actionsModel.actions[index].passed = False
-                self.actionsModel.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), modelIndex, modelIndex)
-                    
-            else:
-                raise "Unsupported action to play"
+            try:
+                action.execute(self)
+                self.actionsModel.actions[index].passed = True
+            except:
+                self.actionsModel.actions[index].passed = False
+            self.actionsModel.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), modelIndex, modelIndex)
+            self.endPlayAction.emit(index)
+        self.endSimulation.emit()
                 
     def load(self, url):
         """Load a web page and return status (a boolean)."""
         self.webframe.load(QUrl(url))
-        return self._wait_load()
+        return self.wait_load()
 
     def click(self, selector, wait_load=True, timeout=None, assert_exists=True):
         if assert_exists and not self.assertExists(selector):
@@ -109,7 +107,7 @@ class Simulator(QObject):
         jscode = "%s('%s').simulate('click');" % (self.jslib, selector)
         self.runjs(jscode)
         if wait_load:
-            return self._wait_load(timeout)
+            return self.wait_load(timeout)
         return True
     
     def clickNearestTo(self, target, near_to, top_parent,  wait_load=True, timeout=None, assert_exists=True):
@@ -119,14 +117,14 @@ class Simulator(QObject):
         jscode = "%s('%s').closest('%s').find('%s').simulate('click');" % (self.jslib, near_to, top_parent, target)
         self.runjs(jscode)
         if wait_load:
-            return self._wait_load(timeout)
+            return self.wait_load(timeout)
         return True
     
     def clickLinkMatching(self, pattern, selector='a', wait_load=True, timeout=None):
         jscode = "%s('%s').filter(function(){ return /%s/i.test(%s(this).text()); }).first().simulate('click');" % (self.jslib, selector, pattern, self.jslib)
         self.runjs(jscode)
         if wait_load:
-            return self._wait_load(timeout)
+            return self.wait_load(timeout)
         return True
         
     def runjs(self, jscode, debug=True):
@@ -134,7 +132,7 @@ class Simulator(QObject):
         self.webframe.evaluateJavaScript('$();')
         return res    
         
-    def _wait_load(self, timeout=None):
+    def wait_load(self, timeout=None):
         app = QApplication.instance()
         app.processEvents()
         if self._load_status is not None:
@@ -244,7 +242,7 @@ class Simulator(QObject):
         #self._events_loop(timeout)
         #self.wait_requests(wait_requests)
         if wait_load:
-            return self._wait_load(timeout)    
+            return self.wait_load(timeout)    
         
     def assertPageTitle(self, regex):
         title = self.webframe.title()

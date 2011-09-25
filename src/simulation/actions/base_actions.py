@@ -7,6 +7,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import xml.etree.ElementTree as Et
 from xml.etree.ElementTree import tostring
+from simulation.exceptions import *
 
 class Action(object):
     
@@ -76,6 +77,16 @@ class FillAction(UserAction):
         self.description = "Fill input for '%s'" % label
         
     def execute(self, simulator):
+        """Fill an input text with a string value using a jQuery selector."""
+        escaped_value = self.value.replace("'", "\\'")
+        if not simulator.assertExists(self.selector):
+            raise DomElementNotFound(self.selector)
+        
+        #if assert_visible and not self.assertVisible(selector):
+        #raise DomElementNotVisible(selector)
+            
+        jscode = "%s('%s').val('%s');" % (simulator.jslib, self.selector, escaped_value)
+        simulator.runjs(jscode)
         
         
     def toXML(self):
@@ -92,6 +103,14 @@ class ClickLinkAction(UserAction):
         super(ClickLinkAction, self).__init__(selector)
         self.text = unicode(text)
         self.description = "Click link '%s'" % self.text
+        
+    def execute(self, simulator):
+        if not simulator.assertExists(self.selector):
+            raise DomElementNotFound(self.selector)
+        
+        jscode = "%s('%s').simulate('click');" % (simulator.jslib, self.selector)
+        simulator.runjs(jscode)
+        return simulator.wait_load()
          
     def toXML(self):
         element = Et.Element("useraction")
@@ -107,6 +126,14 @@ class ClickButtonAction(UserAction):
         self.text = unicode(text)
         self.description = "Click button '%s'" % self.text
         
+    def execute(self, simulator):
+        if not simulator.assertExists(self.selector):
+            raise DomElementNotFound(self.selector)
+        
+        jscode = "%s('%s').simulate('click');" % (simulator.jslib, self.selector)
+        simulator.runjs(jscode)
+        return simulator.wait_load()
+    
     def toXML(self):
         element = Et.Element("useraction")
         element.set("type", "clickbutton")
@@ -119,6 +146,13 @@ class AssertContentAction(AssertAction):
     def __init__(self, selector, value):
         super(AssertContentAction, self).__init__(selector, value)
         self.description = 'Assert contain'
+        
+    def execute(self, simulator):
+        jscode = "_assert.contentMatch('%s', '%s');" % (self.value, self.selector)
+        result = simulator.runjs(jscode)
+        result = result.toBool()
+        if not result:
+            raise Exception("Could not find text '%s' inside DOM element at '%s'" % (self.value, self.selector))
         
     def toXML(self):
         element = Et.Element("assertion")
