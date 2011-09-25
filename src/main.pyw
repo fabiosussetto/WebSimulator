@@ -1,7 +1,7 @@
 '''
 Created on May 2, 2011
 
-@author: fabio
+@author: Fabio Sussetto
 '''
 
 import sys
@@ -18,41 +18,6 @@ from utilities import *
 
 class MainWindow(QMainWindow):
     
-
-    def _buildAddressBar(self):
-        self.urlBar = QLineEdit()
-        self.urlGo = QPushButton("Vai")
-        self.connect(self.urlGo, SIGNAL("clicked()"), self._onUrlGo)
-        self.urlLayout = QHBoxLayout()
-        self.urlLayout.addWidget(self.urlBar)
-        self.urlLayout.addWidget(self.urlGo)
-
-
-    def _buildWebView(self):
-        self.simulator.createView()
-        self.browser = self.simulator.getWidget()
-        self.browser.setMinimumWidth(900)
-        self.connect(self.simulator, SIGNAL("loadingPage()"), self._onLoadingPage)
-        self.connect(self.simulator, SIGNAL("pageLoaded()"), self._onPageLoaded)
-        self.connect(self.simulator.picker, SIGNAL("pathPicked(PyQt_PyObject)"), self._onPathPicked)
-        self.browser.show()
-        self.loadingLabel = QLabel('Loading page ...')
-        self.loadingLabel.setAlignment(Qt.AlignCenter)
-        self.loadingLabel.hide()
-        self.pathLabel = QLabel()
-
-
-    def _buildActionsTree(self):
-        self.treeWidget = QTreeView()
-        self.treeWidget.setModel(self.actionsModel)
-        self.connect(self.simulator, SIGNAL("startPlayAction(int)"), self._onStartPlayAction)
-        self.btnRemoveAction = QToolButton()
-        self.btnRemoveAction.setText('-')
-        self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
-        self.btnPlayAction = QToolButton()
-        self.btnPlayAction.setText('Play')
-        self.connect(self.btnPlayAction, SIGNAL("clicked()"), self._onPlayActionClicked)
-
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         
@@ -107,7 +72,7 @@ class MainWindow(QMainWindow):
         self.buildActions()
         
         self.simulator.load_js()
-        #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
+        self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         
     def openAssertionDlg(self, pickedData):
@@ -115,6 +80,40 @@ class MainWindow(QMainWindow):
         if self.assertionDlg.exec_():
             pass
             #data = self.assertionDlg.data
+        
+    def _buildAddressBar(self):
+        self.urlBar = QLineEdit()
+        self.urlGo = QPushButton("Vai")
+        self.connect(self.urlGo, SIGNAL("clicked()"), self._onUrlGo)
+        self.urlLayout = QHBoxLayout()
+        self.urlLayout.addWidget(self.urlBar)
+        self.urlLayout.addWidget(self.urlGo)
+
+
+    def _buildWebView(self):
+        self.simulator.createView()
+        self.browser = self.simulator.getWidget()
+        self.browser.setMinimumWidth(900)
+        self.connect(self.simulator, SIGNAL("loadingPage()"), self._onLoadingPage)
+        self.connect(self.simulator, SIGNAL("pageLoaded()"), self._onPageLoaded)
+        self.connect(self.simulator.picker, SIGNAL("pathPicked(PyQt_PyObject)"), self._onPathPicked)
+        self.browser.show()
+        self.loadingLabel = QLabel('Loading page ...')
+        self.loadingLabel.setAlignment(Qt.AlignCenter)
+        self.loadingLabel.hide()
+        self.pathLabel = QLabel()
+
+
+    def _buildActionsTree(self):
+        self.treeWidget = QTreeView()
+        self.treeWidget.setModel(self.actionsModel)
+        self.connect(self.simulator, SIGNAL("startPlayAction(int)"), self._onStartPlayAction)
+        self.btnRemoveAction = QToolButton()
+        self.btnRemoveAction.setText('-')
+        self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
+        self.btnPlayAction = QToolButton()
+        self.btnPlayAction.setText('Play')
+        self.connect(self.btnPlayAction, SIGNAL("clicked()"), self._onPlayActionClicked)    
         
     def _onSimulateClicked(self):
         test_case = wp3testcase.Wp3TestCase(self.simulator)

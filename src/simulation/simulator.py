@@ -25,12 +25,8 @@ from picker import *
 from exceptions import *
 
 class Simulator(QObject):
-    '''
-    classdocs
-    '''
-    _jquery = 'jquery-1.6.1.js'
-    _jquery_simulate = 'jquery.simulate.js'
     
+    """ Signals emitted by this class """
     loadingPage = pyqtSignal()
     pageLoaded = pyqtSignal()
     pathPicked = pyqtSignal()
@@ -38,11 +34,19 @@ class Simulator(QObject):
     endSimulation = pyqtSignal()
     startPlayAction = pyqtSignal(int)
     endPlayAction = pyqtSignal(int)
+    
+    """ Public properties """
+    picker = None
+    logger = None
+    
+    jQueryAlias = '$' 
+    
+    """ Protected properties """
+    _jquery = 'jquery-1.6.1.js'
+    _jquery_simulate = 'jquery.simulate.js'
+    
 
     def __init__(self, model):
-        '''
-        Constructor
-        '''
         super(Simulator, self).__init__()
         self.actionsModel = model
         self.webpage = QWebPage()
@@ -58,7 +62,7 @@ class Simulator(QObject):
         self.jquery_picker = open(os.path.join(os.path.dirname(__file__), "../test/picker.js")).read()
         self.jquery_logger = open(os.path.join(os.path.dirname(__file__), "../test/logger.js")).read()
         
-        self.jslib = '$'
+        self.jQueryAlias = '$'
         self._load_status = None
         
         self.picker = Picker();
@@ -104,7 +108,7 @@ class Simulator(QObject):
         if assert_exists and not self.assertExists(selector):
             raise DomElementNotFound(selector)
         
-        jscode = "%s('%s').simulate('click');" % (self.jslib, selector)
+        jscode = "%s('%s').simulate('click');" % (self.jQueryAlias, selector)
         self.runjs(jscode)
         if wait_load:
             return self.wait_load(timeout)
@@ -114,14 +118,14 @@ class Simulator(QObject):
         if assert_exists and not self.assertExists(near_to):
             raise DomElementNotFound(near_to)
         
-        jscode = "%s('%s').closest('%s').find('%s').simulate('click');" % (self.jslib, near_to, top_parent, target)
+        jscode = "%s('%s').closest('%s').find('%s').simulate('click');" % (self.jQueryAlias, near_to, top_parent, target)
         self.runjs(jscode)
         if wait_load:
             return self.wait_load(timeout)
         return True
     
     def clickLinkMatching(self, pattern, selector='a', wait_load=True, timeout=None):
-        jscode = "%s('%s').filter(function(){ return /%s/i.test(%s(this).text()); }).first().simulate('click');" % (self.jslib, selector, pattern, self.jslib)
+        jscode = "%s('%s').filter(function(){ return /%s/i.test(%s(this).text()); }).first().simulate('click');" % (self.jQueryAlias, selector, pattern, self.jQueryAlias)
         self.runjs(jscode)
         if wait_load:
             return self.wait_load(timeout)
@@ -156,7 +160,7 @@ class Simulator(QObject):
         """Load jquery in the current frame"""
         jscode = ''
         jscode += self.jquery
-        jscode += "\nvar %s = jQuery.noConflict();" % self.jslib
+        jscode += "\nvar %s = jQuery.noConflict();" % self.jQueryAlias
         self.runjs(jscode)
 
     def load_js(self):
@@ -203,7 +207,7 @@ class Simulator(QObject):
         if assert_visible and not self.assertVisible(selector):
             raise DomElementNotVisible(selector)
             
-        jscode = "%s('%s').val('%s');" % (self.jslib, selector, escaped_value)
+        jscode = "%s('%s').val('%s');" % (self.jQueryAlias, selector, escaped_value)
         self.runjs(jscode)
         
     def select(self, selector, value, assert_exists=True, assert_visible=True):
@@ -217,7 +221,7 @@ class Simulator(QObject):
         if not self.assertExists("%s > option[value=%s]" % (selector, value)):
             raise Exception("Could not find an option with value '%s' for select at '%s'" % (value, selector))
             
-        jscode = "%s('%s').val('%s');" % (self.jslib, selector, escaped_value)
+        jscode = "%s('%s').val('%s');" % (self.jQueryAlias, selector, escaped_value)
         self.runjs(jscode)    
         
     def sendText(self, selector, text, keyboard_modifiers = Qt.NoModifier, wait_load=False, wait_requests=None, timeout=None):
@@ -250,7 +254,7 @@ class Simulator(QObject):
             raise Exception("Page title '%s' does not match '%s'" % (title, regex))
         
     def assertInputValue(self, regex, selector):
-        jscode = "%s('%s').val()" % (self.jslib, selector)
+        jscode = "%s('%s').val()" % (self.jQueryAlias, selector)
         result = self.runjs(jscode).toString()
         if not re.search(regex, result, re.I):
             raise Exception("Input value at '%s' does not match '%s', found '%s'" % (selector, regex, result))
@@ -278,12 +282,12 @@ class Simulator(QObject):
             raise Exception("Could not find text '%s' inside DOM element at '%s'" % (regex, selector))
     
     def assertExists(self, selector):
-        jscode = "%s('%s').length" % (self.jslib, selector)
+        jscode = "%s('%s').length" % (self.jQueryAlias, selector)
         result = self.runjs(jscode).toBool()
         return result
     
     def assertVisible(self, selector):
-        jscode = "%s('%s').is(':visible')" % (self.jslib, selector)
+        jscode = "%s('%s').is(':visible')" % (self.jQueryAlias, selector)
         result = self.runjs(jscode).toBool()
         return result
         

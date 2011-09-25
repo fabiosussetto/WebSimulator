@@ -35,7 +35,7 @@ class FillAction(UserAction):
         #if assert_visible and not self.assertVisible(selector):
         #raise DomElementNotVisible(selector)
             
-        jscode = "%s('%s').val('%s');" % (simulator.jslib, self.selector, escaped_value)
+        jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
         simulator.runjs(jscode)
         
     def toXML(self):
@@ -57,7 +57,7 @@ class ClickLinkAction(UserAction):
         if not simulator.assertExists(self.selector):
             raise DomElementNotFound(self.selector)
         
-        jscode = "%s('%s').simulate('click');" % (simulator.jslib, self.selector)
+        jscode = "%s('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
         simulator.runjs(jscode)
         return simulator.wait_load()
          
@@ -79,7 +79,7 @@ class ClickButtonAction(UserAction):
         if not simulator.assertExists(self.selector):
             raise DomElementNotFound(self.selector)
         
-        jscode = "%s('%s').simulate('click');" % (simulator.jslib, self.selector)
+        jscode = "%s('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
         simulator.runjs(jscode)
         return simulator.wait_load()
     
