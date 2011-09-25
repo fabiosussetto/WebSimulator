@@ -14,7 +14,10 @@ class AssertContentAction(AssertAction):
         result = simulator.runjs(jscode)
         result = result.toBool()
         if not result:
+            self.passed = False
             raise Exception("Could not find text '%s' inside DOM element at '%s'" % (self.value, self.selector))
+        else:
+            self.passed = True
         
     def toXML(self):
         element = Et.Element("assertion")

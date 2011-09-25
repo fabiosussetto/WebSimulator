@@ -28,6 +28,7 @@ class UserAction(Action):
         self.selector = unicode(selector)
         self.value = unicode(None)
         self.label = unicode(None)
+        self.error = False
         if value:
             self.value = unicode(value)
         if label:

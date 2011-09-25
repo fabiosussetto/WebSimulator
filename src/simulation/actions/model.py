@@ -81,7 +81,9 @@ class treeModel(QAbstractItemModel):
                     return QVariant(QBrush(QColor("lightgreen")))
                 elif item.action.passed == False:
                     return QVariant(QBrush(QColor("red")))
-
+            elif isinstance(item.action, UserAction):
+                if item.action.error == True: 
+                    return QVariant(QBrush(QColor("yellow")))
         return QVariant()
 
 

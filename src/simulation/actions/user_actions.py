@@ -6,6 +6,7 @@ from simulation.exceptions import *
 class VisitAction(UserAction):
     
     def __init__(self, url):
+        super(VisitAction, self).__init__(None)
         self.url = unicode(url)
         self.description = "Visit '%s'" % url
         
@@ -30,6 +31,7 @@ class FillAction(UserAction):
         """Fill an input text with a string value using a jQuery selector."""
         escaped_value = self.value.replace("'", "\\'")
         if not simulator.assertExists(self.selector):
+            self.error = True
             raise DomElementNotFound(self.selector)
         
         #if assert_visible and not self.assertVisible(selector):
