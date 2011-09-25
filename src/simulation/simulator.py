@@ -71,7 +71,6 @@ class Simulator(QObject):
         
     def _on_load_started(self):
         self._load_status = None
-        #self.emit(SIGNAL("loadingPage"))
         self.loadingPage.emit()
     
     def _on_load_finished(self, successful):

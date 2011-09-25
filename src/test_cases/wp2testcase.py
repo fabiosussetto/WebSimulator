@@ -4,7 +4,7 @@ Created on Jun 18, 2011
 @author: fabio
 '''
 
-from simulation import test_case
+import test_case
 import re
 import httplib
 
