@@ -17,6 +17,41 @@ from simulation.actions import *
 
 class MainWindow(QMainWindow):
     
+
+    def _buildAddressBar(self):
+        self.urlBar = QLineEdit()
+        self.urlGo = QPushButton("Vai")
+        self.connect(self.urlGo, SIGNAL("clicked()"), self._onUrlGo)
+        self.urlLayout = QHBoxLayout()
+        self.urlLayout.addWidget(self.urlBar)
+        self.urlLayout.addWidget(self.urlGo)
+
+
+    def _buildWebView(self):
+        self.simulator.createView()
+        self.browser = self.simulator.getWidget()
+        self.browser.setMinimumWidth(900)
+        self.connect(self.simulator, SIGNAL("loadingPage()"), self._onLoadingPage)
+        self.connect(self.simulator, SIGNAL("pageLoaded()"), self._onPageLoaded)
+        self.connect(self.simulator.picker, SIGNAL("pathPicked(PyQt_PyObject)"), self._onPathPicked)
+        self.browser.show()
+        self.loadingLabel = QLabel('Loading page ...')
+        self.loadingLabel.setAlignment(Qt.AlignCenter)
+        self.loadingLabel.hide()
+        self.pathLabel = QLabel()
+
+
+    def _buildActionsTree(self):
+        self.treeWidget = QTreeView()
+        self.treeWidget.setModel(self.actionsModel)
+        self.connect(self.simulator, SIGNAL("startPlayAction(int)"), self._onStartPlayAction)
+        self.btnRemoveAction = QToolButton()
+        self.btnRemoveAction.setText('-')
+        self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
+        self.btnPlayAction = QToolButton()
+        self.btnPlayAction.setText('Play')
+        self.connect(self.btnPlayAction, SIGNAL("clicked()"), self._onPlayActionClicked)
+
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         
@@ -30,44 +65,11 @@ class MainWindow(QMainWindow):
         splitterRight.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self.mainSplitter.addWidget(splitterLeft)
         
-        self.urlBar = QLineEdit()
-        self.urlGo = QPushButton("Vai")
-        self.connect(self.urlGo, SIGNAL("clicked()"), self._onUrlGo)
-        self.btnSimulate = QPushButton("Run test")
-        self.connect(self.btnSimulate, SIGNAL("clicked()"), self._onSimulateClicked)
+        self._buildAddressBar()
         
-        self.simulator.createView()
-        self.browser = self.simulator.getWidget()
-        self.browser.setMinimumWidth(900)
+        self._buildWebView()
         
-        self.connect(self.simulator, SIGNAL("loadingPage()"), self._onLoadingPage)
-        self.connect(self.simulator, SIGNAL("pageLoaded()"), self._onPageLoaded)
-        self.connect(self.simulator.picker, SIGNAL("pathPicked(PyQt_PyObject)"), self._onPathPicked)
-        
-        self.browser.show()
-        
-        self.loadingLabel = QLabel('Loading page ...')
-        self.loadingLabel.setAlignment(Qt.AlignCenter)
-        self.loadingLabel.hide()
-        
-        self.pathLabel = QLabel()
-        #self.pathLabel.hide()
-        
-        urlLayout = QHBoxLayout()
-        urlLayout.addWidget(self.urlBar)
-        urlLayout.addWidget(self.urlGo)
-        
-        self.treeWidget = QTreeView()
-        self.treeWidget.setModel(self.actionsModel)
-        self.connect(self.simulator, SIGNAL("startPlayAction(int)"), self._onStartPlayAction)
-        
-        self.btnRemoveAction = QToolButton()
-        self.btnRemoveAction.setText('-')
-        self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
-
-        self.btnPlayAction = QToolButton()
-        self.btnPlayAction.setText('Play')
-        self.connect(self.btnPlayAction, SIGNAL("clicked()"), self._onPlayActionClicked)
+        self._buildActionsTree()
         
         rightTabs = QTabWidget()
         self.mainSplitter.addWidget(rightTabs)
@@ -90,12 +92,11 @@ class MainWindow(QMainWindow):
         actionsToolbox.addWidget(self.btnPlayAction)
         
         layout = QVBoxLayout(splitterLeft)
-        layout.addLayout(urlLayout)
+        layout.addLayout(self.urlLayout)
         self.browser.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         layout.addWidget(self.browser)
         layout.addWidget(self.loadingLabel)
         layout.addWidget(self.pathLabel)
-        #layout.addWidget(self.btnSimulate)
         
         self.setWindowTitle("Test Webkit")
         self.setMinimumSize(1200, 600)
@@ -117,9 +118,6 @@ class MainWindow(QMainWindow):
     def _onSimulateClicked(self):
         test_case = wp3testcase.Wp3TestCase(self.simulator)
         test_case.run()
-        
-        #test_case = wp2testcase.Wp2TestCase(self.simulator)
-        #test_case.run()
         
     def _onUrlGo(self):
         url = QString(self.urlBar.text())
