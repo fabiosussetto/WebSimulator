@@ -13,6 +13,7 @@ from PyQt4.QtWebKit import *
 from test_cases import wp3testcase, wp2testcase
 import qrc_resources
 import ui
+from simulation.actions import *
 
 class MainWindow(QMainWindow):
     
@@ -31,6 +32,7 @@ class MainWindow(QMainWindow):
         
         self.urlBar = QLineEdit()
         self.urlGo = QPushButton("Vai")
+        self.connect(self.urlGo, SIGNAL("clicked()"), self._onUrlGo)
         self.btnSimulate = QPushButton("Run test")
         self.connect(self.btnSimulate, SIGNAL("clicked()"), self._onSimulateClicked)
         
@@ -103,7 +105,7 @@ class MainWindow(QMainWindow):
         self.buildActions()
         
         self.simulator.load_js()
-        self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
+        #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         
     def openAssertionDlg(self, pickedData):
@@ -118,6 +120,15 @@ class MainWindow(QMainWindow):
         
         #test_case = wp2testcase.Wp2TestCase(self.simulator)
         #test_case.run()
+        
+    def _onUrlGo(self):
+        url = QString(self.urlBar.text())
+        if url.indexOf('http', 0) == -1:
+            url = 'http://' + url
+            self.urlBar.setText(url)
+        self.simulator.load(url)
+        if self.simulator.logger.enabled:
+            self.actionsModel.insertRows(VisitAction(url), self.actionsModel.rowCount())
         
     def _onPickerClicked(self):
         self.simulator.togglePicker()

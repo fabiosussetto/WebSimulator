@@ -2,6 +2,22 @@ from base_actions import UserAction
 import xml.etree.ElementTree as Et
 #from xml.etree.ElementTree import tostring
 from simulation.exceptions import *
+
+class VisitAction(UserAction):
+    
+    def __init__(self, url):
+        self.url = unicode(url)
+        self.description = "Visit '%s'" % url
+        
+    def execute(self, simulator):
+        simulator.load(self.url)
+        
+    def toXML(self):
+        element = Et.Element("useraction")
+        element.set("type", "visit")
+        element.set("label", self.description)
+        Et.SubElement(element, "url", {"value": self.url})
+        return element
             
 class FillAction(UserAction):
     
@@ -21,7 +37,6 @@ class FillAction(UserAction):
             
         jscode = "%s('%s').val('%s');" % (simulator.jslib, self.selector, escaped_value)
         simulator.runjs(jscode)
-        
         
     def toXML(self):
         element = Et.Element("useraction")

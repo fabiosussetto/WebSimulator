@@ -67,8 +67,3 @@ class ActionContainer(object):
     def __iter__(self):
         for action in self.actions.values():
             yield action
-
-            
-
-
-            

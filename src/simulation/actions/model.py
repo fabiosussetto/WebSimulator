@@ -156,15 +156,22 @@ class treeModel(QAbstractItemModel):
     
     def addItem(self, action):
         newparent = TreeItem(TreeItem.MAIN_NODE, action.description, self.rootItem, action)
-        newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Selector: %s" % action.selector, newparent))
-        
         actionClass = action.__class__.__name__
+        
+        if actionClass == "VisitAction":
+            #newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Selector: %s" % action.selector, newparent))
+            pass
+        else:
+            newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Selector: %s" % action.selector, newparent))
+        
         if actionClass == "AssertContentAction":
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Value: %s" % action.value, newparent))
         elif actionClass == "AssertPresenceAction":
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Check visibility: %s" % action.checkVisibility, newparent))
         elif actionClass == "FillAction":
-            newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Value: %s" % action.value, newparent))    
+            newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Value: %s" % action.value, newparent)) 
+        elif actionClass == "VisitAction":
+            newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Url: %s" % action.url, newparent))       
         self.parents.append(newparent)
         self.rootItem.appendChild(newparent)
         
@@ -211,6 +218,9 @@ class treeModel(QAbstractItemModel):
             elif type == "clickbutton":
                 selector = node.find("selector")
                 return ClickButtonAction(selector.get("path"), node.get("text"))
+            elif type == "visit":
+                url = node.find("url")
+                return VisitAction(url.get("value"))
         elif tag == "assertion":
             type = node.get("type")
             if type == "content":
