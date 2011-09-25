@@ -14,6 +14,7 @@ from test_cases import wp3testcase, wp2testcase
 import qrc_resources
 import ui
 from simulation.actions import *
+from utilities import *
 
 class MainWindow(QMainWindow):
     
@@ -168,29 +169,13 @@ class MainWindow(QMainWindow):
         self.treeWidget.setCurrentIndex(self.actionsModel.index(index, 0, QModelIndex()))
         
     def buildActions(self):
-        pickerAction = self.createAction("Invert", self._onPickerClicked, "Ctrl+P", "pipette", "Toggle picker", True, "toggled(bool)")
-        recordAction = self.createAction("Record", self._onRecordClicked, "Ctrl+R", "record", "Toggle recording", True, "toggled(bool)")
-        newAssertionAction = self.createAction("New assertion", self._onNewAssertionClicked, "Ctrl+A", "eye", "New assertion")
-        saveAction = self.createAction("Save", self._onSaveActionsClicked, "Ctrl+S", "disk", "Save recorded session")
-        openAction = self.createAction("Open", self._onOpenActionsClicked, "Ctrl+O", "folder", "Open saved session")
+        pickerAction = Gui.createAction(self, "Invert", self._onPickerClicked, "Ctrl+P", "pipette", "Toggle picker", True, "toggled(bool)")
+        recordAction = Gui.createAction(self, "Record", self._onRecordClicked, "Ctrl+R", "record", "Toggle recording", True, "toggled(bool)")
+        newAssertionAction = Gui.createAction(self, "New assertion", self._onNewAssertionClicked, "Ctrl+A", "eye", "New assertion")
+        saveAction = Gui.createAction(self, "Save", self._onSaveActionsClicked, "Ctrl+S", "disk", "Save recorded session")
+        openAction = Gui.createAction(self, "Open", self._onOpenActionsClicked, "Ctrl+O", "folder", "Open saved session")
         mainToolbar = self.addToolBar("Recording")
         mainToolbar.addActions((pickerAction, recordAction, newAssertionAction, saveAction, openAction))
-        
-    def createAction(self, text, slot=None, shortcut=None, icon=None, tip=None, checkable=False, signal="triggered()"):
-        action = QAction(text, self) 
-        if icon is not None:
-            action.setIcon(QIcon(":/%s.png" % icon)) 
-        if shortcut is not None:
-            action.setShortcut(shortcut) 
-        if tip is not None:
-            action.setToolTip(tip)
-            action.setStatusTip(tip) 
-        if slot is not None:
-            self.connect(action, SIGNAL(signal), slot) 
-        if checkable:
-            action.setCheckable(True)
-        return action    
-        
         
 if __name__ == '__main__':
     pass
