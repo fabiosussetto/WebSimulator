@@ -75,6 +75,9 @@ class FillAction(UserAction):
         label = unicode(label)
         self.description = "Fill input for '%s'" % label
         
+    def execute(self, simulator):
+        
+        
     def toXML(self):
         element = Et.Element("useraction")
         element.set("type", "fill")
