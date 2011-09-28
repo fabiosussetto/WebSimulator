@@ -15,7 +15,7 @@ class AssertContentAction(AssertAction):
         result = result.toBool()
         if not result:
             self.passed = False
-            raise Exception("Could not find text '%s' inside DOM element at '%s'" % (self.value, self.selector))
+            raise AssertException("Could not find text '%s' inside DOM element at '%s'" % (self.value, self.selector))
         else:
             self.passed = True
         
@@ -33,3 +33,7 @@ class AssertPresenceAction(AssertAction):
         self.description = 'Assert presence'
         self.selector = selector
         self.checkVisibility = checkVisibility
+        
+        
+class AssertException(Exception):
+    """Error on the injected Javascript code."""

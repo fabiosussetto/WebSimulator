@@ -23,6 +23,7 @@ from PyQt4.QtWebKit import *
 from logger import *
 from picker import *
 from exceptions import *
+from simulation.actions.assertions import AssertException
 
 class Simulator(QObject):
     
@@ -52,6 +53,9 @@ class Simulator(QObject):
         self.webpage = QWebPage()
         #self.webpage.userAgentForUrl = 'test'
         self.webframe = self.webpage.mainFrame()
+        self.networkManager = self.webpage.networkAccessManager()
+        
+        self.connect(self.networkManager, SIGNAL('finished(QNetworkReply *)'), self._on_network_finished)
         
         self.webpage.connect(self.webpage, SIGNAL('loadFinished(bool)'), self._on_load_finished)
         self.webpage.connect(self.webpage, SIGNAL("loadStarted()"), self._on_load_started)
@@ -68,6 +72,13 @@ class Simulator(QObject):
         self.picker = Picker();
         self.logger = Logger();
         self.logger.setModel(model)
+        
+    def _on_network_finished(self, reply):
+        request = reply.request()
+        if request.hasRawHeader(QByteArray("X-Requested-With")):
+            self._load_status = True
+            print 'Ajax detected!'
+        
         
     def createView(self):
         self.webview = QWebView()
@@ -93,7 +104,7 @@ class Simulator(QObject):
             try:
                 action.execute(self)
                 self.actionsModel.actions[index].passed = True
-            except:
+            except AssertException:
                 self.actionsModel.actions[index].passed = False
             self.actionsModel.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), modelIndex, modelIndex)
             self.endPlayAction.emit(index)
@@ -136,7 +147,7 @@ class Simulator(QObject):
         self.webframe.evaluateJavaScript('$();')
         return res    
         
-    def wait_load(self, timeout=None):
+    def wait_load(self, timeout=10):
         app = QApplication.instance()
         app.processEvents()
         if self._load_status is not None:
@@ -144,10 +155,12 @@ class Simulator(QObject):
             self._load_status = None
             return load_status
         itime = time.time()
+        
         while self._load_status is None:
             if timeout and time.time() - itime > timeout:
                 raise SpynnerTimeout("Timeout reached: %d seconds" % timeout)
             app.processEvents()
+        
         app.processEvents()    
         load_status = self._load_status
         self._load_status = None

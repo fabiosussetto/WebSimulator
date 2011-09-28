@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://localhost/ajax_app/'" type="visit">
+    <url value="http://localhost/ajax_app/" />
+  </useraction>
+  <useraction text="Start ajax request" type="clicklink">
+    <selector path="#start" />
+  </useraction>
+  <assertion type="content">
+    <selector path="#message" />
+    <content value="Server side loaded content" />
+  </assertion>
+</actions>

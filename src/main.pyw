@@ -7,6 +7,7 @@ Created on May 2, 2011
 import sys
 import time
 import simulation
+import os
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
@@ -74,6 +75,8 @@ class MainWindow(QMainWindow):
         self.simulator.load_js()
         self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
+        
+        self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/ajax.xml"))
         
     def openAssertionDlg(self, pickedData):
         self.assertionDlg = AssertionDlg(self.actionsModel, pickedData, self)
