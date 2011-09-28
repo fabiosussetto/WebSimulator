@@ -40,6 +40,9 @@ class Simulator(QObject):
     picker = None
     logger = None
     
+    """ Protected properties """
+    _load_status = None
+    
     jQueryAlias = '$' 
     
     """ Protected properties """
@@ -51,7 +54,6 @@ class Simulator(QObject):
         super(Simulator, self).__init__()
         self.actionsModel = model
         self.webpage = QWebPage()
-        #self.webpage.userAgentForUrl = 'test'
         self.webframe = self.webpage.mainFrame()
         self.networkManager = self.webpage.networkAccessManager()
         
@@ -62,12 +64,11 @@ class Simulator(QObject):
         
         self.jquery = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery)).read()
         self.jquery_simulate = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery_simulate)).read()
-        self.jquery_selector = open(os.path.join(os.path.dirname(__file__), "../test/selector_builder.js")).read()
-        self.jquery_picker = open(os.path.join(os.path.dirname(__file__), "../test/picker.js")).read()
-        self.jquery_logger = open(os.path.join(os.path.dirname(__file__), "../test/logger.js")).read()
+        self.jquery_selector = open(os.path.join(os.path.dirname(__file__), "../javascript/selector_builder.js")).read()
+        self.jquery_picker = open(os.path.join(os.path.dirname(__file__), "../javascript/picker.js")).read()
+        self.jquery_logger = open(os.path.join(os.path.dirname(__file__), "../javascript/logger.js")).read()
         
-        self.jQueryAlias = '$'
-        self._load_status = None
+        self.jQueryAlias = '$jQuerySimulator'
         
         self.picker = Picker();
         self.logger = Logger();
@@ -77,8 +78,6 @@ class Simulator(QObject):
         request = reply.request()
         if request.hasRawHeader(QByteArray("X-Requested-With")):
             self._load_status = True
-            print 'Ajax detected!'
-        
         
     def createView(self):
         self.webview = QWebView()
@@ -154,11 +153,11 @@ class Simulator(QObject):
             load_status = self._load_status
             self._load_status = None
             return load_status
-        itime = time.time()
+        start_time = time.time()
         
         while self._load_status is None:
-            if timeout and time.time() - itime > timeout:
-                raise SpynnerTimeout("Timeout reached: %d seconds" % timeout)
+            if timeout and time.time() - start_time > timeout:
+                raise SimulatorTimeout("Timeout reached: %d seconds" % timeout)
             app.processEvents()
         
         app.processEvents()    
@@ -320,3 +319,5 @@ class Simulator(QObject):
     
     current_url = property(_get_current_url)
     
+class SimulatorTimeout(Exception):
+    """A timeout has occurred."""
