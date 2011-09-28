@@ -149,9 +149,6 @@ class Simulator(QObject):
                 raise SpynnerTimeout("Timeout reached: %d seconds" % timeout)
             app.processEvents()
         app.processEvents()    
-        #if self._load_status:
-            #self.load_js()
-            #self.webpage.setViewportSize(self.webpage.mainFrame().contentsSize())
         load_status = self._load_status
         self._load_status = None
         return load_status
@@ -171,7 +168,6 @@ class Simulator(QObject):
         self.load_jquery_logger()
         self.webframe.addToJavaScriptWindowObject("_Picker", self.picker)
         self.webframe.addToJavaScriptWindowObject("_Logger", self.logger)
-        #self.load_additional_js()
         
     def get_js_obj_length(self, res):
         if res.type() != res.Map:

@@ -12,7 +12,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
 from test_cases import wp3testcase, wp2testcase
 import qrc_resources
-import ui
+from ui.assertion_dialog import AssertionDlg
 from simulation.actions import *
 from utilities import *
 
@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
         #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         
     def openAssertionDlg(self, pickedData):
-        self.assertionDlg = ui.AssertionDlg(self.actionsModel, pickedData, self)
+        self.assertionDlg = AssertionDlg(self.actionsModel, pickedData, self)
         if self.assertionDlg.exec_():
             pass
             #data = self.assertionDlg.data
