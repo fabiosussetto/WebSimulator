@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://localhost/ajax_app/'" type="visit">
+    <url value="http://localhost/ajax_app/" />
+  </useraction>
+  <useraction text="Start first ajax request" type="clicklink">
+    <selector path=".request a:icontains(start first ajax request)" />
+  </useraction>
+  <useraction text="Start second ajax request" type="clicklink">
+    <selector path=".request a:icontains(start second ajax request)" />
+  </useraction>
+  <assertion type="content">
+    <selector path=".request .message:eq(3)" />
+    <content value="Second req - server side loaded content" />
+  </assertion>
+</actions>

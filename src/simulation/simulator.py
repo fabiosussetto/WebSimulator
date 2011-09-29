@@ -68,7 +68,7 @@ class Simulator(QObject):
         self.jquery_picker = open(os.path.join(os.path.dirname(__file__), "../javascript/picker.js")).read()
         self.jquery_logger = open(os.path.join(os.path.dirname(__file__), "../javascript/logger.js")).read()
         
-        self.jQueryAlias = '$jQuerySimulator'
+        self.jQueryAlias = '$'
         
         self.picker = Picker();
         self.logger = Logger();
@@ -76,7 +76,8 @@ class Simulator(QObject):
         
     def _on_network_finished(self, reply):
         request = reply.request()
-        if request.hasRawHeader(QByteArray("X-Requested-With")):
+        ajax_header = request.rawHeader(QByteArray("X-Requested-With"))
+        if not ajax_header.isEmpty() and QString(ajax_header).compare("XMLHttpRequest", Qt.CaseInsensitive) == 0:
             self._load_status = True
         
     def createView(self):
@@ -102,9 +103,8 @@ class Simulator(QObject):
             self.startPlayAction.emit(index)
             try:
                 action.execute(self)
-                self.actionsModel.actions[index].passed = True
             except AssertException:
-                self.actionsModel.actions[index].passed = False
+                pass
             self.actionsModel.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), modelIndex, modelIndex)
             self.endPlayAction.emit(index)
         self.endSimulation.emit()
@@ -181,15 +181,6 @@ class Simulator(QObject):
         self.webframe.addToJavaScriptWindowObject("_Picker", self.picker)
         self.webframe.addToJavaScriptWindowObject("_Logger", self.logger)
         
-    def get_js_obj_length(self, res):
-        if res.type() != res.Map:
-            return False
-        resmap = res.toMap()
-        lenfield = QString(u'length')
-        if lenfield not in resmap:
-            return False
-        return resmap[lenfield].toInt()[0]    
-
     def load_jquery_simulate(self, force=False):
         """Load jquery in the current frame"""
         self.runjs(self.jquery_simulate, debug=False)
@@ -266,21 +257,6 @@ class Simulator(QObject):
         result = self.runjs(jscode).toString()
         if not re.search(regex, result, re.I):
             raise Exception("Input value at '%s' does not match '%s', found '%s'" % (selector, regex, result))
-    """        
-    def assertTextMatch(self, regex, selector):
-        #TODO: avoid rebuild parse tree
-        self.parser = pyquery.PyQuery(self.html)
-        #test = '<html><head></head><body><div id="no"></div><div id="test"><p>ba</p><p class="baa">ba</p><p class="wrap">miao <h2>Ciao</h2></p><p class="wrap">bello</p></div></body></html>'
-        #self.parser = pyquery.PyQuery(test)
-        selector = selector.encode('ascii')
-        #selector = "#test .wrap:nth-child(3) h2"
-        el = self.parser(selector);
-        if not el:
-            raise Exception("Could not find DOM element at '%s'" % selector)
-        result = re.search(regex, el.text(), re.I)
-        if not result:
-            raise Exception("Could not find text '%s' inside DOM element at '%s'" % (regex, selector))
-    """
     
     def assertTextMatch(self, regex, selector):
         jscode = "_assert.contentMatch('%s', '%s');" % (regex, selector)

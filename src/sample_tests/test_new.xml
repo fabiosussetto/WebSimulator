@@ -25,4 +25,8 @@
     <selector path="#wpbody-content h2" />
     <content value="Add New Post" />
   </assertion>
+  <assertion type="content">
+    <selector path="#wphead" />
+    <content value="foobar" />
+  </assertion>
 </actions>

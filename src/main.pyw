@@ -92,7 +92,6 @@ class MainWindow(QMainWindow):
         self.urlLayout.addWidget(self.urlBar)
         self.urlLayout.addWidget(self.urlGo)
 
-
     def _buildWebView(self):
         self.simulator.createView()
         self.browser = self.simulator.getWidget()
@@ -105,7 +104,6 @@ class MainWindow(QMainWindow):
         self.loadingLabel.setAlignment(Qt.AlignCenter)
         self.loadingLabel.hide()
         self.pathLabel = QLabel()
-
 
     def _buildActionsTree(self):
         self.treeWidget = QTreeView()
