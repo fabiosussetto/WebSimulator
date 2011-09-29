@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         
-        self.actionsModel = simulation.actions.treeModel()
+        self.actionsModel = simulation.actions.TreeModel()
         self.simulator = simulation.Simulator(self.actionsModel)
         
         self.mainSplitter = QSplitter(Qt.Horizontal, self)
@@ -127,7 +127,7 @@ class MainWindow(QMainWindow):
             self.urlBar.setText(url)
         self.simulator.load(url)
         if self.simulator.logger.isEnabled():
-            self.actionsModel.insertRows(VisitAction(url), self.actionsModel.rowCount())
+            self.actionsModel.insertRow(VisitAction(url))
         
     def _onPickerClicked(self):
         self.simulator.togglePicker()

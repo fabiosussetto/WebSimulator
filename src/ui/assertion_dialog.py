@@ -55,7 +55,7 @@ class AssertionDlg(QDialog):
             visibility = unicode(self.visibilityCheck.isChecked())
             action = actions.AssertPresenceAction(selector, visibility)
         
-        self.actionsModel.insertRows(action, self.actionsModel.rowCount())
+        self.actionsModel.insertRow(action)
         QDialog.accept(self)    
         
     def comboboxChanged(self, index):

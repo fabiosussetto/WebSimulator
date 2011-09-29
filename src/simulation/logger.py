@@ -19,7 +19,7 @@ class Logger(QObject):
         
     def _recordAction(self, action):
         if self.enabled:
-            self.model.insertRows(action, self.model.rowCount())
+            self.model.insertRow(action)
     
     @pyqtSignature("QString, QString, QString")
     def fill(self, path, value, label=None):

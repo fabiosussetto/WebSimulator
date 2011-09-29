@@ -51,10 +51,10 @@ class TreeItem(object):
             return self.parentItem.childItems.index(self)
         return 0    
                         
-class treeModel(QAbstractItemModel):
+class TreeModel(QAbstractItemModel):
 
     def __init__(self, parent=None):
-        super(treeModel, self).__init__(parent)
+        super(TreeModel, self).__init__(parent)
         self.actions = []
             
         self.rootItem = TreeItem(None, None, None)
@@ -126,13 +126,25 @@ class treeModel(QAbstractItemModel):
             p_Item = parent.internalPointer()
         return p_Item.childCount()
     
+    def insertRow(self, action, position=None):
+        if not position:
+            position = self.rowCount()
+        self.beginInsertRows(QModelIndex(), position, position)
+        if position:
+            self.actions.insert(position, action)
+        else:
+            self.actions.append(action)
+            
+        self.endInsertRows()
+        self.addItem(action)
+        self.dirty = True
+    
     def insertRows(self, action, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
         self.actions.insert(position, action)
         self.addItem(action)
         self.endInsertRows()
         self.dirty = True
-        return True
     
     def removeRows(self, position, rows=1, index=QModelIndex()): 
         self.beginRemoveRows(QModelIndex(), position, position + rows - 1) 
@@ -140,7 +152,6 @@ class treeModel(QAbstractItemModel):
         self.removeItem(position) 
         self.endRemoveRows()
         self.dirty = True 
-        return True
     
     def removeAllRows(self):
         self.beginRemoveRows(QModelIndex(), 0, self.rowCount()) 
@@ -149,9 +160,7 @@ class treeModel(QAbstractItemModel):
             self.removeItem(position) 
         self.endRemoveRows()
         self.dirty = True 
-        return True
         
-    
     def setupModelData(self):
         for action in self.actions:
             self.addItem(action)

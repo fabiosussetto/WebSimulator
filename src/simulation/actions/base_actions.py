@@ -44,27 +44,3 @@ class AssertAction(Action):
         self.value = unicode(value)
         self.passed = None            
         
-class ActionContainer(object):   
-    
-    def __init__(self):
-        self.dirty = False
-        self.actions = {}
-
-    def action(self, identity):
-        return self.actions.get(identity)
-
-    def addAction(self, action):
-        self.actions[id(action)] = action
-        self.dirty = True
-
-    def removeAction(self, action):
-        del self.actions[id(action)]
-        del action
-        self.dirty = True
-
-    def __len__(self):
-        return len(self.actions)
-
-    def __iter__(self):
-        for action in self.actions.values():
-            yield action
