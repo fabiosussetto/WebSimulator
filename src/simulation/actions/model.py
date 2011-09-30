@@ -3,9 +3,11 @@ from PyQt4.QtGui import *
 
 import xml.etree.ElementTree as Et
 from xml.etree.ElementTree import tostring
-from base_actions import *
+#from base_actions import *
 from user_actions import *
 from assertions import *
+from utilities.generic import * 
+from simulation.actions import user_actions, assertions
 
 class TreeItem(object):
     '''
@@ -58,7 +60,6 @@ class TreeModel(QAbstractItemModel):
         self.actions = []
             
         self.rootItem = TreeItem(None, None, None)
-        #self.parents = {0 : self.rootItem}
         self.parents = [self.rootItem]
         self.setupModelData()
 
@@ -167,21 +168,17 @@ class TreeModel(QAbstractItemModel):
     
     def addItem(self, action):
         newparent = TreeItem(TreeItem.MAIN_NODE, action.description, self.rootItem, action)
-        actionClass = action.__class__.__name__
         
-        if actionClass == "VisitAction":
-            #newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Selector: %s" % action.selector, newparent))
-            pass
-        else:
+        if not isinstance(action, VisitAction):
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Selector: %s" % action.selector, newparent))
         
-        if actionClass == "AssertContentAction":
+        if isinstance(action, AssertContentAction):
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Value: %s" % action.value, newparent))
-        elif actionClass == "AssertPresenceAction":
+        elif isinstance(action, AssertPresenceAction):
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Check visibility: %s" % action.checkVisibility, newparent))
-        elif actionClass == "FillAction":
+        elif isinstance(action, FillAction):
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Value: %s" % action.value, newparent)) 
-        elif actionClass == "VisitAction":
+        elif isinstance(action, VisitAction):
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Url: %s" % action.url, newparent))       
         self.parents.append(newparent)
         self.rootItem.appendChild(newparent)
@@ -217,6 +214,18 @@ class TreeModel(QAbstractItemModel):
         
     def actionFromXML(self, node):
         tag = node.tag
+        type = node.get("type")
+        if tag == "useraction":
+            action = getattr(user_actions, type + 'Action')(xmlNode=node)
+        elif tag == "assertion":
+            action = getattr(assertions, type + 'Action')(xmlNode=node)
+        else:
+            raise Exception("Invalid tag type")
+        return action 
+        
+    '''        
+    def actionFromXML(self, node):
+        tag = node.tag
         if tag == "useraction":
             type = node.get("type")
             if type == "fill":
@@ -240,6 +249,7 @@ class TreeModel(QAbstractItemModel):
                 return AssertContentAction(selector.get("path"), content.get("value"))
         else:
             raise Exception("Invalid tag type")    
+    '''
     
     def indent(self, elem, level=0):
         i = "\n" + level*"  "

@@ -6,9 +6,9 @@ from simulation.exceptions import *
 
 class AssertContentAction(AssertAction):
     
-    def __init__(self, selector, value):
-        super(AssertContentAction, self).__init__(selector, value)
-        self.description = 'Assert contain'
+    def __init__(self, selector=None, value=None, xmlNode=None):
+        super(AssertContentAction, self).__init__(selector, value, xmlNode)
+        self.description = 'Assert contain text'
         
     def execute(self, simulator):
         jscode = "_assert.contentMatch('%s', '%s');" % (self.value, self.selector)
@@ -26,10 +26,16 @@ class AssertContentAction(AssertAction):
             raise AssertException("Could not find text '%s' inside DOM element at '%s'" % (self.value, self.selector))
         else:
             self.passed = True
+    
+    def fromXML(self, node):
+        super(AssertContentAction, self).fromXML(node)
+        selectorNode = node.find("selector")
+        contentNode = node.find("content")
+        self.selector = selectorNode.get("path")
+        self.value = contentNode.get("value")
         
     def toXML(self):
-        element = Et.Element("assertion")
-        element.set("type", "content")
+        element = super(AssertContentAction, self).toXML()
         Et.SubElement(element, "selector", {"path": self.selector})
         Et.SubElement(element, "content", {"value": self.value})
         return element

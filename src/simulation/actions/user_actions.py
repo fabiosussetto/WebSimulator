@@ -5,27 +5,32 @@ from simulation.exceptions import *
 
 class VisitAction(UserAction):
     
-    def __init__(self, url):
-        super(VisitAction, self).__init__(None)
-        self.url = unicode(url)
-        self.description = "Visit '%s'" % url
+    def __init__(self, url=None, xmlNode=None):
+        if xmlNode is None:
+            self.url = unicode(url)
+        else:
+            self.fromXML(xmlNode)
+        self.description = "Visit '%s'" % self.url
         
     def execute(self, simulator):
         simulator.load(self.url)
         
+    def fromXML(self, node):
+        super(VisitAction, self).fromXML(node)
+        urlNode = node.find("url")    
+        self.url = unicode(urlNode.get('value'))
+        
     def toXML(self):
-        element = Et.Element("useraction")
-        element.set("type", "visit")
+        element = super(VisitAction, self).toXML()
         element.set("label", self.description)
         Et.SubElement(element, "url", {"value": self.url})
         return element
             
 class FillAction(UserAction):
     
-    def __init__(self, selector, value, label=""):
-        super(FillAction, self).__init__(selector, value, label)
-        label = unicode(label)
-        self.description = "Fill input for '%s'" % label
+    def __init__(self, selector=None, value=None, label="", xmlNode=None):
+        super(FillAction, self).__init__(selector, value, label, xmlNode)
+        self.description = "Fill input for '%s'" % self.label
         
     def execute(self, simulator):
         """Fill an input text with a string value using a jQuery selector."""
@@ -40,9 +45,11 @@ class FillAction(UserAction):
         jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
         simulator.runjs(jscode)
         
+    def fromXML(self, node):
+        super(FillAction, self).fromXML(node)
+        
     def toXML(self):
-        element = Et.Element("useraction")
-        element.set("type", "fill")
+        element = super(FillAction, self).toXML()
         element.set("label", self.label)
         Et.SubElement(element, "selector", {"path": self.selector})
         Et.SubElement(element, "content", {"value": self.value})
@@ -50,10 +57,9 @@ class FillAction(UserAction):
         
 class ClickLinkAction(UserAction):
     
-    def __init__(self, selector, text=""):
-        super(ClickLinkAction, self).__init__(selector)
-        self.text = unicode(text)
-        self.description = "Click link '%s'" % self.text
+    def __init__(self, selector=None, label=None, xmlNode=None):
+        super(ClickLinkAction, self).__init__(selector, label, None, xmlNode)
+        self.description = "Click link '%s'" % self.label
         
     def execute(self, simulator):
         if not simulator.assertExists(self.selector):
@@ -62,20 +68,21 @@ class ClickLinkAction(UserAction):
         jscode = "%s('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
         simulator.runjs(jscode)
         return simulator.wait_load()
+    
+    def fromXML(self, node):
+        super(ClickLinkAction, self).fromXML(node)
          
     def toXML(self):
-        element = Et.Element("useraction")
-        element.set("type", "clicklink")
-        element.set("text", self.text)
+        element = super(ClickLinkAction, self).toXML()
+        element.set("label", self.label)
         Et.SubElement(element, "selector", {"path": self.selector})
         return element
         
 class ClickButtonAction(UserAction):
     
-    def __init__(self, selector, text=""):
-        super(ClickButtonAction, self).__init__(selector)
-        self.text = unicode(text)
-        self.description = "Click button '%s'" % self.text
+    def __init__(self, selector=None, label=None, xmlNode=None):
+        super(ClickButtonAction, self).__init__(selector, label, None, xmlNode)
+        self.description = "Click button '%s'" % self.label
         
     def execute(self, simulator):
         if not simulator.assertExists(self.selector):
@@ -85,9 +92,11 @@ class ClickButtonAction(UserAction):
         simulator.runjs(jscode)
         return simulator.wait_load()
     
+    def fromXML(self, node):
+        super(ClickButtonAction, self).fromXML(node)
+    
     def toXML(self):
-        element = Et.Element("useraction")
-        element.set("type", "clickbutton")
-        element.set("text", self.text)
+        element = super(ClickButtonAction, self).toXML()
+        element.set("label", self.label)
         Et.SubElement(element, "selector", {"path": self.selector})
         return element 
