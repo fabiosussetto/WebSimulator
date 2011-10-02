@@ -55,8 +55,10 @@ class MainWindow(QMainWindow):
         actionsToolbox = QHBoxLayout()
         actionsToolbox.setAlignment(Qt.AlignLeft)
         rightLayout.addLayout(actionsToolbox)
-        actionsToolbox.addWidget(self.btnRemoveAction)
+        
         actionsToolbox.addWidget(self.btnPlayAction)
+        actionsToolbox.addWidget(self.btnRemoveAction)
+        actionsToolbox.addWidget(self.btnClearAction)
         
         layout = QVBoxLayout(splitterLeft)
         layout.addLayout(self.urlLayout)
@@ -109,12 +111,18 @@ class MainWindow(QMainWindow):
         self.treeWidget = QTreeView()
         self.treeWidget.setModel(self.actionsModel)
         self.connect(self.simulator, SIGNAL("startPlayAction(int)"), self._onStartPlayAction)
-        self.btnRemoveAction = QToolButton()
-        self.btnRemoveAction.setText('-')
-        self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
+        
         self.btnPlayAction = QToolButton()
         self.btnPlayAction.setText('Play')
         self.connect(self.btnPlayAction, SIGNAL("clicked()"), self._onPlayActionClicked)    
+        
+        self.btnRemoveAction = QToolButton()
+        self.btnRemoveAction.setText('-')
+        self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
+        
+        self.btnClearAction = QToolButton()
+        self.btnClearAction.setText('Clear all')
+        self.connect(self.btnClearAction, SIGNAL("clicked()"), self._onClearActionClicked)    
         
     def _onSimulateClicked(self):
         test_case = wp3testcase.Wp3TestCase(self.simulator)
@@ -136,7 +144,10 @@ class MainWindow(QMainWindow):
         self.simulator.logger.setEnable(checked)
         
     def _onRemoveActionClicked(self):
-        self.actionsModel.removeRows(self.treeWidget.currentIndex().row())    
+        self.actionsModel.removeRows(self.treeWidget.currentIndex().row())
+        
+    def _onClearActionClicked(self):
+        self.actionsModel.removeAllRows()     
         
     def _onPlayActionClicked(self):
         self.simulator.play(self.actionsModel.actions)

@@ -1,4 +1,4 @@
-from PyQt4.QtCore import QObject, pyqtSignature, pyqtSignal
+from PyQt4.QtCore import QObject, pyqtSignature, pyqtSignal, pyqtSlot
 
 class Picker(QObject): 
     
@@ -15,7 +15,8 @@ class Picker(QObject):
     
     def setEnable(self, enable):
         self.enabled = enable
-        
+    
+    @pyqtSlot(result="bool")    
     def isEnabled(self):
         return self.enabled
     

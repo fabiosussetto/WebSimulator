@@ -30,6 +30,9 @@ class TreeItem(object):
         
     def removeChild(self, position):
         self.childItems = self.childItems[:position] + self.childItems[position + 1:]
+        
+    def removeAllChildren(self):
+        del self.childItems[:]
 
     def child(self, row):
         return self.childItems[row]
@@ -157,8 +160,7 @@ class TreeModel(QAbstractItemModel):
     def removeAllRows(self):
         self.beginRemoveRows(QModelIndex(), 0, self.rowCount()) 
         self.actions = []
-        for position in range(0, self.rowCount()):
-            self.removeItem(position) 
+        self.rootItem.removeAllChildren()
         self.endRemoveRows()
         self.dirty = True 
         
@@ -223,34 +225,6 @@ class TreeModel(QAbstractItemModel):
             raise Exception("Invalid tag type")
         return action 
         
-    '''        
-    def actionFromXML(self, node):
-        tag = node.tag
-        if tag == "useraction":
-            type = node.get("type")
-            if type == "fill":
-                selector = node.find("selector")
-                content = node.find("content")
-                return FillAction(selector.get("path"), content.get("value"), node.get("label"))
-            elif type == "clicklink":
-                selector = node.find("selector")
-                return ClickLinkAction(selector.get("path"), node.get("text"))
-            elif type == "clickbutton":
-                selector = node.find("selector")
-                return ClickButtonAction(selector.get("path"), node.get("text"))
-            elif type == "visit":
-                url = node.find("url")
-                return VisitAction(url.get("value"))
-        elif tag == "assertion":
-            type = node.get("type")
-            if type == "content":
-                selector = node.find("selector")
-                content = node.find("content")
-                return AssertContentAction(selector.get("path"), content.get("value"))
-        else:
-            raise Exception("Invalid tag type")    
-    '''
-    
     def indent(self, elem, level=0):
         i = "\n" + level*"  "
         if len(elem):

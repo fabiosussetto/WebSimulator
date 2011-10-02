@@ -18,6 +18,10 @@ class Action(object):
         pass
     
     @abstractmethod    
+    def execute(self, simulator):
+        pass
+    
+    @abstractmethod    
     def fromXML(self, xmlNode):
         pass
     
@@ -34,6 +38,7 @@ class UserAction(Action):
     value = None
     label = None
     error = False
+    description = None
 
     def __init__(self, selector=None, value=None, label=None, xmlNode=None):
         super(UserAction, self).__init__()
@@ -64,6 +69,11 @@ class UserAction(Action):
 class AssertAction(Action):
     
     __metaclass__ = ABCMeta
+    
+    selector = None
+    value = None
+    passed = None
+    description = None
     
     def __init__(self, selector=None, value=None, xmlNode=None):
         super(AssertAction, self).__init__()

@@ -1,28 +1,25 @@
 (function($) {
 $(function(){
 
-function Overlay(width, height, left, top) {
-
-  this.width = this.height = this.left = this.top = 0;
-
-  // outer parent
-  var outer = $("<div class='outer' />").appendTo("body");
+  function Overlay(width, height, left, top) {
   
-  // red lines (boxes)
-  var topbox    = $("<div style='position:absolute; background:rgb(255,0,0); z-index:65000;' />").css("height", 1).appendTo(outer);
-  var bottombox = $("<div style='position:absolute; background:rgb(255,0,0); z-index:65000;' />").css("height", 1).appendTo(outer);  
-  var leftbox   = $("<div style='position:absolute; background:rgb(255,0,0); z-index:65000;' />").css("width",  1).appendTo(outer);
-  var rightbox  = $("<div style='position:absolute; background:rgb(255,0,0); z-index:65000;' />").css("width",  1).appendTo(outer);
+    this.width = this.height = this.left = this.top = 0;
   
-  // don't count it as a real element
-  outer.mouseover(function(){ 
-      outer.hide(); 
-  });
-
-/**
- * Public interface
- */
+    var outer = $("<div class='outer' />").appendTo("body");
+    
+    var topbox    = $("<div style='position:absolute; background:rgb(255,0,0); z-index:65000;' />").css("height", 1).appendTo(outer);
+    var bottombox = $("<div style='position:absolute; background:rgb(255,0,0); z-index:65000;' />").css("height", 1).appendTo(outer);  
+    var leftbox   = $("<div style='position:absolute; background:rgb(255,0,0); z-index:65000;' />").css("width",  1).appendTo(outer);
+    var rightbox  = $("<div style='position:absolute; background:rgb(255,0,0); z-index:65000;' />").css("width",  1).appendTo(outer);
+    
+    outer.mouseover(function(){ 
+        outer.hide(); 
+    });
   
+  /**
+   * Public interface
+   */
+    
     this.resize = function resize(width, height, left, top) {
       if (width != null)
         this.width = width;
@@ -33,15 +30,15 @@ function Overlay(width, height, left, top) {
       if (top != null)
         this.top = top;      
     };
- 
+   
     this.show = function show() {
        outer.show();
     };
-             
+               
     this.hide = function hide() {
        outer.hide();
     };     
-
+  
     this.render = function render(width, height, left, top) {
       this.resize(width, height, left, top);
       topbox.css({
@@ -67,28 +64,22 @@ function Overlay(width, height, left, top) {
         
       this.show();
     };      
-    // initial rendering [optional]
-    //this.render(width, height, left, top);
   }
     
-  
-  // test
-  var box = new Overlay(200, 200, 400, 20);
-  
-  __pickerEnabled = false;
+  var _pickerBox = new Overlay(200, 200, 400, 20);
   
   $("body").mouseover(function(e){
-    if (__pickerEnabled == false) {
-      box.hide();
+    if (_Picker.isEnabled() == false) {
+      _pickerBox.hide();
       return true;
     }
     var el = $(e.target);
     var offset = el.offset();
-    box.render(el.outerWidth(), el.outerHeight(), offset.left, offset.top);
+    _pickerBox.render(el.outerWidth(), el.outerHeight(), offset.left, offset.top);
   });
   
   $('*').click(function(e){
-    if (__pickerEnabled == false) {
+    if (_Picker.isEnabled() == false) {
       return true;
     }
     e.preventDefault();

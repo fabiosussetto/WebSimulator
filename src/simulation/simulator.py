@@ -282,10 +282,6 @@ class Simulator(QObject):
         return self.webframe.url().toString()
     
     def togglePicker(self):
-        val = 'false' if self.picker.isEnabled() else 'true'
-            
-        jscode = "__pickerEnabled = %s;" % val
-        self.runjs(jscode, False)
         self.picker.toggleEnable()
     
     # Properties

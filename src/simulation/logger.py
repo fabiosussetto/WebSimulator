@@ -24,6 +24,10 @@ class Logger(QObject):
     @pyqtSignature("QString, QString, QString")
     def fill(self, path, value, label=None):
         self._recordAction(actions.FillAction(path, value, label))
+        
+    @pyqtSignature("QString, QString, QString, QString")
+    def select(self, path, value, label=None, displayOption=None):
+        self._recordAction(actions.SelectAction(path, value, label, displayOption))    
     
     @pyqtSignature("QString, QString")
     def checkbox(self, path, value):

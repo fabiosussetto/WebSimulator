@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://wptesi/wp_3-1-3/wp-admin'" type="Visit">
+    <url value="http://wptesi/wp_3-1-3/wp-admin" />
+  </useraction>
+  <useraction label="Username" type="Fill">
+    <selector path="#user_login" />
+    <content value="admin" />
+  </useraction>
+  <useraction label="Password" type="Fill">
+    <selector path="#user_pass" />
+    <content value="cactus" />
+  </useraction>
+  <useraction label="Log In" type="ClickButton">
+    <selector path="#wp-submit" />
+  </useraction>
+  <useraction label="Settings" type="ClickLink">
+    <selector path="#menu-settings a:icontains(settings)" />
+  </useraction>
+  <useraction label="New User Default Role" type="Select">
+    <selector path="#default_role" />
+    <content display="Author" value="author" />
+  </useraction>
+</actions>

@@ -39,9 +39,6 @@ class FillAction(UserAction):
             self.error = True
             raise DomElementNotFound(self.selector)
         
-        #if assert_visible and not self.assertVisible(selector):
-        #raise DomElementNotVisible(selector)
-            
         jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
         simulator.runjs(jscode)
         
@@ -58,7 +55,7 @@ class FillAction(UserAction):
 class ClickLinkAction(UserAction):
     
     def __init__(self, selector=None, label=None, xmlNode=None):
-        super(ClickLinkAction, self).__init__(selector, label, None, xmlNode)
+        super(ClickLinkAction, self).__init__(selector, None, label, xmlNode)
         self.description = "Click link '%s'" % self.label
         
     def execute(self, simulator):
@@ -81,7 +78,7 @@ class ClickLinkAction(UserAction):
 class ClickButtonAction(UserAction):
     
     def __init__(self, selector=None, label=None, xmlNode=None):
-        super(ClickButtonAction, self).__init__(selector, label, None, xmlNode)
+        super(ClickButtonAction, self).__init__(selector, None, label, xmlNode)
         self.description = "Click button '%s'" % self.label
         
     def execute(self, simulator):
@@ -100,3 +97,34 @@ class ClickButtonAction(UserAction):
         element.set("label", self.label)
         Et.SubElement(element, "selector", {"path": self.selector})
         return element 
+    
+class SelectAction(UserAction):
+    
+    def __init__(self, selector=None, value=None, label=None, displayOption=None, xmlNode=None):
+        super(SelectAction, self).__init__(selector, value, label, xmlNode)
+        if xmlNode is None:
+            self.displayOption = unicode(displayOption)
+        self.description = "Select option '%s' for '%s'" % (self.displayOption, self.label)
+        
+    def execute(self, simulator):
+        if not simulator.assertExists(self.selector):
+            raise DomElementNotFound(self.selector)
+        
+        if not simulator.assertExists("%s > option[value=%s]" % (self.selector, self.value)):
+            raise Exception("Could not find an option with value '%s' for select at '%s'" % (self.value, self.selector))
+            
+        escaped_value = self.value.replace("'", "\\'")    
+        jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
+        
+        simulator.runjs(jscode)
+    
+    def fromXML(self, node):
+        super(SelectAction, self).fromXML(node)
+        self.displayOption = unicode(node.find("content").get('display'));
+    
+    def toXML(self):
+        element = super(SelectAction, self).toXML()
+        element.set("label", self.label)
+        Et.SubElement(element, "selector", {"path": self.selector})
+        Et.SubElement(element, "content", {"display": self.displayOption, "value": self.value})
+        return element
