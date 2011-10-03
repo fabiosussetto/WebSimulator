@@ -2,6 +2,10 @@
   $(function(){
     // Logger
     
+    /*$('body').click(function(){
+      alert('ciao');
+    });*/
+    
     function _findLabel(element) {
       var labelText = null;
       var id = element.attr('id');

@@ -2,6 +2,10 @@ from base_actions import UserAction
 import xml.etree.ElementTree as Et
 #from xml.etree.ElementTree import tostring
 from simulation.exceptions import *
+from PyQt4.QtCore import QEvent, Qt
+from PyQt4.Qt import QApplication
+from PyQt4.QtGui import QMouseEvent
+from PyQt4.QtTest import *
 
 class VisitAction(UserAction):
     
@@ -33,14 +37,7 @@ class FillAction(UserAction):
         self.description = "Fill input for '%s'" % self.label
         
     def execute(self, simulator):
-        """Fill an input text with a string value using a jQuery selector."""
-        escaped_value = self.value.replace("'", "\\'")
-        if not simulator.assertExists(self.selector):
-            self.error = True
-            raise DomElementNotFound(self.selector)
-        
-        jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
-        simulator.runjs(jscode)
+        self._execute_native(simulator)
         
     def fromXML(self, node):
         super(FillAction, self).fromXML(node)
@@ -51,6 +48,21 @@ class FillAction(UserAction):
         Et.SubElement(element, "selector", {"path": self.selector})
         Et.SubElement(element, "content", {"value": self.value})
         return element
+    
+    def _execute_js(self, simulator):
+        escaped_value = self.value.replace("'", "\\'")
+        if not simulator.assertExists(self.selector):
+            self.error = True
+            raise DomElementNotFound(self.selector)
+        
+        jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
+        simulator.runjs(jscode)
+    
+    def _execute_native(self, simulator):
+        where = simulator.getElementPosition(self.selector)
+        QTest.mouseClick(simulator.webview, Qt.LeftButton, Qt.NoModifier, where)
+        for c in self.value:
+            QTest.keyEvent(QTest.Click, simulator.webview, c)
         
 class ClickLinkAction(UserAction):
     
@@ -59,11 +71,7 @@ class ClickLinkAction(UserAction):
         self.description = "Click link '%s'" % self.label
         
     def execute(self, simulator):
-        if not simulator.assertExists(self.selector):
-            raise DomElementNotFound(self.selector)
-        
-        jscode = "%s('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
-        simulator.runjs(jscode)
+        self._execute_native(simulator)
         return simulator.wait_load()
     
     def fromXML(self, node):
@@ -74,6 +82,18 @@ class ClickLinkAction(UserAction):
         element.set("label", self.label)
         Et.SubElement(element, "selector", {"path": self.selector})
         return element
+    
+    def _execute_js(self, simulator):
+        if not simulator.assertExists(self.selector):
+            raise DomElementNotFound(self.selector)
+        
+        jscode = "%s('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
+        simulator.runjs(jscode)
+    
+    def _execute_native(self, simulator):
+        where = simulator.getElementPosition(self.selector)
+        QTest.mouseMove(simulator.webview, where)
+        QTest.mouseClick(simulator.webview, Qt.LeftButton, Qt.NoModifier, where)
         
 class ClickButtonAction(UserAction):
     

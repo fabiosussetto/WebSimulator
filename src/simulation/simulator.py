@@ -27,6 +27,8 @@ from simulation.actions.assertions import AssertException
 
 class Simulator(QObject):
     
+    event_looptime = 0.01
+    
     """ Signals emitted by this class """
     loadingPage = pyqtSignal()
     pageLoaded = pyqtSignal()
@@ -197,56 +199,19 @@ class Simulator(QObject):
         """Load jquery logger"""
         self.runjs(self.jquery_logger, debug=False)
         
-    def fill(self, selector, value, assert_exists=True, assert_visible=True):
-        """Fill an input text with a string value using a jQuery selector."""
-        escaped_value = value.replace("'", "\\'")
-        if assert_exists and not self.assertExists(selector):
-            raise DomElementNotFound(selector)
+    def getElementPosition(self, selector):
+        jscode = "off = %s('%s').offset();off.left+','+off.top" % (self.jQueryAlias, selector)
+        try:
+            x, y = ("%s" % self.runjs(jscode).toString()).split(',')
+        except Exception, e:
+            raise  SpynnerError('Cant find %s (%s)' % (selector, e))
+        point = QPoint(int(x), int(y))
+        rect = self.webframe.geometry()
+        where = QPoint(rect.x() + point.x() + 10, rect.y() + point.y() + 2)
+        #where = self.webview.mapToGlobal(where)
         
-        if assert_visible and not self.assertVisible(selector):
-            raise DomElementNotVisible(selector)
-            
-        jscode = "%s('%s').val('%s');" % (self.jQueryAlias, selector, escaped_value)
-        self.runjs(jscode)
-        
-    def select(self, selector, value, assert_exists=True, assert_visible=True):
-        escaped_value = value.replace("'", "\\'")
-        if assert_exists and not self.assertExists(selector):
-            raise DomElementNotFound(selector)
-        
-        if assert_visible and not self.assertVisible(selector):
-            raise DomElementNotVisible(selector)
-        
-        if not self.assertExists("%s > option[value=%s]" % (selector, value)):
-            raise Exception("Could not find an option with value '%s' for select at '%s'" % (value, selector))
-            
-        jscode = "%s('%s').val('%s');" % (self.jQueryAlias, selector, escaped_value)
-        self.runjs(jscode)    
-        
-    def sendText(self, selector, text, keyboard_modifiers = Qt.NoModifier, wait_load=False, wait_requests=None, timeout=None):
-        """
-        Send text in any element (to fill it for example)
-
-        @param selector: QtWebkit Selector
-        @param keys to input in the QT way
-        @param wait_load: If True, it will wait until a new page is loaded.
-        @param timeout: Seconds to wait for the page to load before
-                                       raising an exception.
-        @param wait_requests: How many requests to wait before returning. Useful
-                              for AJAX requests.
-
-        >>> br.sendKeys('#val_cel_dentifiant', 'fancy text')
-        """
-        element = self.webframe.findFirstElement(selector)
-        element.setFocus()
-        eventp = QKeyEvent(QEvent.KeyPress, Qt.Key_A, keyboard_modifiers, QString(text))
-        app = QApplication.instance()
-        app.sendEvent(self.webview, eventp)
-        #self._events_loop(timeout)
-        #self.wait_requests(wait_requests)
-        if wait_load:
-            return self.wait_load(timeout)    
-        
+        return where
+    
     def assertPageTitle(self, regex):
         title = self.webframe.title()
         if not re.search(regex, title, re.I):
