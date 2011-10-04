@@ -21,7 +21,6 @@ class Picker(QObject):
         
     @pyqtSlot(QWebElement)    
     def getNode(self, dom_element):
-        print 'QQQQQ'
         self.element = dom_element    
     
     @pyqtSlot(result="bool")    
