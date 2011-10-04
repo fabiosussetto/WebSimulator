@@ -82,8 +82,10 @@ class MainWindow(QMainWindow):
         
     def openAssertionDlg(self, pickedData):
         self.assertionDlg = AssertionDlg(self.actionsModel, pickedData, self)
-        if self.assertionDlg.exec_():
-            pass
+        self.assertionDlg.setModal(False)
+        self.assertionDlg.show()
+        #if self.assertionDlg.exec_():
+            #pass
             #data = self.assertionDlg.data
         
     def _buildAddressBar(self):

@@ -6,6 +6,7 @@ class AssertionDlg(QDialog):
 
     def __init__(self, actionsModel, pickedData, parent=None):
         super(AssertionDlg, self).__init__(parent)
+        self.parent = parent
         self.data = {}
         self.setAttribute(Qt.WA_DeleteOnClose)
         
@@ -41,6 +42,9 @@ class AssertionDlg(QDialog):
 
         self.connect(buttonBox.button(QDialogButtonBox.Apply), SIGNAL("clicked()"), self.apply)
         self.connect(buttonBox, SIGNAL("rejected()"), self, SLOT("reject()"))
+        
+        self.connect(self.parent.simulator.picker, SIGNAL("pathPicked(PyQt_PyObject)"), self._onPathPicked)
+        
         self.setWindowTitle("Set assertion")
         self.setMinimumSize(500, 100)
 
@@ -65,20 +69,40 @@ class AssertionDlg(QDialog):
     def _buildContentAssertionForm(self, page):
         self.contentAssertionForm = QFormLayout(page)
         self.contentAssertionForm.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
-        self.contentEdit = QLineEdit(self.pickedData.value)
-        self.selectorEdit = QLineEdit(self.pickedData.selector)
+        #self.contentEdit = QLineEdit(self.pickedData.value)
+        self.contentEdit = QLineEdit()
+        #self.selectorEdit = QLineEdit(self.pickedData.selector)
+        self.selectorEdit = QLineEdit()
         
-        #elementTypeDescLabel = QLabel("Element type:")
-        #elementTypeLabel = QLabel(self.pickedData.elementType)
+        self.btnPick = QToolButton()
+        self.btnPick.setText('Pick')
+        self.connect(self.btnPick, SIGNAL("clicked()"), self._onPickClicked)    
+                
+        selectorPicker = QHBoxLayout()
+        selectorPicker.addWidget(self.selectorEdit)
+        selectorPicker.addWidget(self.btnPick)
         
-        self.contentAssertionForm.addRow("Picked selector", self.selectorEdit)
+        self.contentAssertionForm.addRow("Picked selector", selectorPicker)
         self.contentAssertionForm.addRow("Element should contain", self.contentEdit)
         
     def _buildPresenceAssertionForm(self, page):
         self.contentPresenceForm = QFormLayout(page)
         self.contentPresenceForm .setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         
-        self.selectorEdit = QLineEdit(self.pickedData.selector)
-        self.visibilityCheck = QCheckBox()
-        self.contentPresenceForm.addRow("Picked selector", self.selectorEdit)
-        self.contentPresenceForm.addRow("Check for visibility", self.visibilityCheck)
+        #self.selectorEdit = QLineEdit(self.pickedData.selector)
+        #self.selectorEdit = QLineEdit()
+        #self.visibilityCheck = QCheckBox()
+        #self.contentPresenceForm.addRow("Picked selector", self.selectorEdit)
+        #self.contentPresenceForm.addRow("Check for visibility", self.visibilityCheck)
+        
+    def _onPickClicked(self):
+        self.hide()
+        self.parent.simulator.picker.setEnable(True)
+        
+    def _onPathPicked(self, pickedData):
+        self.show()
+        self.selectorEdit.setText(pickedData.selector)
+        self.contentEdit.setText(pickedData.value)
+        self.parent.simulator.picker.setEnable(False)
+        #self.openAssertionDlg(pickedData)    
+        
