@@ -1,4 +1,5 @@
 from PyQt4.QtCore import QObject, pyqtSignature, pyqtSignal, pyqtSlot
+from PyQt4.QtWebKit import *
 
 class Picker(QObject): 
     
@@ -10,11 +11,18 @@ class Picker(QObject):
     
     pickedData = None
     
+    element = None
+    
     def toggleEnable(self):
         self.enabled = not self.enabled
     
     def setEnable(self, enable):
         self.enabled = enable
+        
+    @pyqtSlot(QWebElement)    
+    def getNode(self, dom_element):
+        print 'QQQQQ'
+        self.element = dom_element    
     
     @pyqtSlot(result="bool")    
     def isEnabled(self):

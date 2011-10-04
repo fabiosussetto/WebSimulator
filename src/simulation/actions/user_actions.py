@@ -38,6 +38,7 @@ class FillAction(UserAction):
         
     def execute(self, simulator):
         self._execute_native(simulator)
+        #self._execute_js(simulator)
         
     def fromXML(self, node):
         super(FillAction, self).fromXML(node)
@@ -51,9 +52,6 @@ class FillAction(UserAction):
     
     def _execute_js(self, simulator):
         escaped_value = self.value.replace("'", "\\'")
-        if not simulator.assertExists(self.selector):
-            self.error = True
-            raise DomElementNotFound(self.selector)
         
         jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
         simulator.runjs(jscode)
@@ -71,7 +69,11 @@ class ClickLinkAction(UserAction):
         self.description = "Click link '%s'" % self.label
         
     def execute(self, simulator):
+        if not simulator.assertExists(self.selector):
+            self.error = True
+            raise DomElementNotFound(self.selector)
         self._execute_native(simulator)
+        #self._execute_js(simulator)
         return simulator.wait_load()
     
     def fromXML(self, node):

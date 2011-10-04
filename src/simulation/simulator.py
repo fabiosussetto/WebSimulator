@@ -116,16 +116,6 @@ class Simulator(QObject):
         self.webframe.load(QUrl(url))
         return self.wait_load()
 
-    def click(self, selector, wait_load=True, timeout=None, assert_exists=True):
-        if assert_exists and not self.assertExists(selector):
-            raise DomElementNotFound(selector)
-        
-        jscode = "%s('%s').simulate('click');" % (self.jQueryAlias, selector)
-        self.runjs(jscode)
-        if wait_load:
-            return self.wait_load(timeout)
-        return True
-    
     def clickNearestTo(self, target, near_to, top_parent,  wait_load=True, timeout=None, assert_exists=True):
         if assert_exists and not self.assertExists(near_to):
             raise DomElementNotFound(near_to)
@@ -200,16 +190,13 @@ class Simulator(QObject):
         self.runjs(self.jquery_logger, debug=False)
         
     def getElementPosition(self, selector):
-        jscode = "off = %s('%s').offset();off.left+','+off.top" % (self.jQueryAlias, selector)
-        try:
-            x, y = ("%s" % self.runjs(jscode).toString()).split(',')
-        except Exception, e:
-            raise  SpynnerError('Cant find %s (%s)' % (selector, e))
+        jscode = "_off = %s('%s').realOffset(); _off.left + ',' + _off.top;" % (self.jQueryAlias, selector)
+        res = self.runjs(jscode).toString().split(',')
+        x = res[0]
+        y = res[1]
         point = QPoint(int(x), int(y))
         rect = self.webframe.geometry()
-        where = QPoint(rect.x() + point.x() + 10, rect.y() + point.y() + 2)
-        #where = self.webview.mapToGlobal(where)
-        
+        where = QPoint(rect.x() + point.x() + 1, rect.y() + point.y() + 1)
         return where
     
     def assertPageTitle(self, regex):

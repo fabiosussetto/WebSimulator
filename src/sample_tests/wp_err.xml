@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://wptesi/wp_2-8/wp-login.php'" type="Visit">
+    <url value="http://wptesi/wp_2-8/wp-login.php" />
+  </useraction>
+  <useraction label="Username" type="Fill">
+    <selector path="#user_login" />
+    <content value="admin" />
+  </useraction>
+</actions>

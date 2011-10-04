@@ -55,17 +55,12 @@
   
   		var relatedTarget = $(e.relatedTarget)[0];
   
-  		if ($.isFunction(document.createEvent)) {
-  			evt = document.createEvent("MouseEvents");
-  			evt.initMouseEvent(type, e.bubbles, e.cancelable, e.view, e.detail,
-  				e.screenX, e.screenY, e.clientX, e.clientY,
-  				e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
-  				e.button, e.relatedTarget || document.body.parentNode);
-  		} else if (document.createEventObject) {
-  			evt = document.createEventObject();
-  			$.extend(evt, e);
-  			evt.button = { 0:1, 1:4, 2:2 }[evt.button] || evt.button;
-  		}
+			evt = document.createEvent("MouseEvents");
+			evt.initMouseEvent(type, e.bubbles, e.cancelable, e.view, e.detail,
+				e.screenX, e.screenY, e.clientX, e.clientY,
+				e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
+				e.button, e.relatedTarget || document.body.parentNode);
+				
   		return evt;
   	},
   	
@@ -76,28 +71,19 @@
   			keyCode: 0, charCode: 0
   		}, options);
   
-  		if ($.isFunction(document.createEvent)) {
-  			try {
-  				evt = document.createEvent("KeyEvents");
-  				evt.initKeyEvent(type, e.bubbles, e.cancelable, e.view,
-  					e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
-  					e.keyCode, e.charCode);
-  			} catch(err) {
-  				evt = document.createEvent("Events");
-  				evt.initEvent(type, e.bubbles, e.cancelable);
-  				$.extend(evt, { view: e.view,
-  					ctrlKey: e.ctrlKey, altKey: e.altKey, shiftKey: e.shiftKey, metaKey: e.metaKey,
-  					keyCode: e.keyCode, charCode: e.charCode
-  				});
-  			}
-  		} else if (document.createEventObject) {
-  			evt = document.createEventObject();
-  			$.extend(evt, e);
-  		}
-  		if ($.browser.msie || $.browser.opera) {
-  			evt.keyCode = (e.charCode > 0) ? e.charCode : e.keyCode;
-  			evt.charCode = undefined;
-  		}
+			try {
+				evt = document.createEvent("KeyEvents");
+				evt.initKeyEvent(type, e.bubbles, e.cancelable, e.view,
+					e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
+					e.keyCode, e.charCode);
+			} catch(err) {
+				evt = document.createEvent("Events");
+				evt.initEvent(type, e.bubbles, e.cancelable);
+				$.extend(evt, { view: e.view,
+					ctrlKey: e.ctrlKey, altKey: e.altKey, shiftKey: e.shiftKey, metaKey: e.metaKey,
+					keyCode: e.keyCode, charCode: e.charCode
+				});
+			}
   		return evt;
   	},
   

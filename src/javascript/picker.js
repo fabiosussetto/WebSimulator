@@ -1,6 +1,29 @@
 (function($) {
+  
+$.fn.realOffset = function() {
+  var $body = $('body');
+  var $this = $(this);
+  var borderTop = parseInt($body.css('border-top-width'));
+  var marginTop = parseInt($body.css('margin-top'));
+  var paddingTop = parseInt($body.css('padding-top'));
+  
+  var borderLeft = parseInt($body.css('border-left-width'));
+  var marginLeft = parseInt($body.css('margin-left'));
+  var paddingLeft = parseInt($body.css('padding-left'));
+  
+  var offset = $this.offset();
+  return {
+    top : offset.top + borderTop + marginTop + paddingTop,
+    left : offset.left + borderLeft + marginLeft + paddingLeft
+  }
+};  
+  
+  
 $(function(){
-
+  
+  //var node = document.getElementById('user_login');
+  //_Picker.getNode(node);
+  
   function Overlay(width, height, left, top) {
   
     this.width = this.height = this.left = this.top = 0;
