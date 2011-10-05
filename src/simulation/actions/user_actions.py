@@ -53,11 +53,13 @@ class FillAction(UserAction):
     def _execute_js(self, simulator):
         escaped_value = self.value.replace("'", "\\'")
         
-        jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
+        jscode = "%s.smartSelector.select('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
         simulator.runjs(jscode)
     
     def _execute_native(self, simulator):
         where = simulator.getElementPosition(self.selector)
+        jscode = "%s.smartSelector.select('%s').val('');" % (simulator.jQueryAlias, self.selector)
+        simulator.runjs(jscode)
         QTest.mouseClick(simulator.webview, Qt.LeftButton, Qt.NoModifier, where)
         for c in self.value:
             QTest.keyEvent(QTest.Click, simulator.webview, c)

@@ -66,9 +66,10 @@ class Simulator(QObject):
         
         self.jquery = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery)).read()
         self.jquery_simulate = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery_simulate)).read()
-        self.jquery_selector = open(os.path.join(os.path.dirname(__file__), "../javascript/selector_builder.js")).read()
+        self.jquery_path_builder = open(os.path.join(os.path.dirname(__file__), "../javascript/selector_builder.js")).read()
         self.jquery_picker = open(os.path.join(os.path.dirname(__file__), "../javascript/picker.js")).read()
         self.jquery_logger = open(os.path.join(os.path.dirname(__file__), "../javascript/logger.js")).read()
+        self.jquery_selector = open(os.path.join(os.path.dirname(__file__), "../javascript/selector.js")).read()
         
         self.jQueryAlias = '$'
         
@@ -167,30 +168,30 @@ class Simulator(QObject):
     def load_js(self):
         self.load_jquery()
         self.load_jquery_simulate()
-        self.load_jquery_selector()
+        self.load_jquery_path_builder()
         self.load_jquery_picker()
         self.load_jquery_logger()
+        self.load_jquery_selector()
         self.webframe.addToJavaScriptWindowObject("_Picker", self.picker)
         self.webframe.addToJavaScriptWindowObject("_Logger", self.logger)
         
     def load_jquery_simulate(self, force=False):
-        """Load jquery in the current frame"""
         self.runjs(self.jquery_simulate, debug=False)
         
     def load_jquery_picker(self, force=False):
-        """Load jquery picker"""
         self.runjs(self.jquery_picker, debug=False)
         
+    def load_jquery_path_builder(self, force=False):
+        self.runjs(self.jquery_path_builder, debug=False)
+        
     def load_jquery_selector(self, force=False):
-        """Load jquery picker"""
         self.runjs(self.jquery_selector, debug=False)
         
     def load_jquery_logger(self, force=False):
-        """Load jquery logger"""
         self.runjs(self.jquery_logger, debug=False)
         
     def getElementPosition(self, selector):
-        jscode = "_off = %s('%s').realOffset(); _off.left + ',' + _off.top;" % (self.jQueryAlias, selector)
+        jscode = "_off = %s.smartSelector.select('%s').realOffset(); _off.left + ',' + _off.top;" % (self.jQueryAlias, selector)
         res = self.runjs(jscode).toString().split(',')
         x = res[0]
         y = res[1]
@@ -218,7 +219,8 @@ class Simulator(QObject):
             raise Exception("Could not find text '%s' inside DOM element at '%s'" % (regex, selector))
     
     def assertExists(self, selector):
-        jscode = "%s('%s').length" % (self.jQueryAlias, selector)
+        #jscode = "%s('%s').length" % (self.jQueryAlias, selector)
+        jscode = "%s.smartSelector.select('%s').length > 0" % (self.jQueryAlias, selector)
         result = self.runjs(jscode).toBool()
         return result
     

@@ -19,7 +19,7 @@
     <content value="Dashboard" />
   </assertion>
   <useraction label="Add New" type="ClickLink">
-    <selector path="#menu-posts a:icontains(add new)" />
+    <selector path="#menu-posts a:icontains(add+new)" />
   </useraction>
   <assertion type="AssertContent">
     <selector path="#wpbody-content h2" />
@@ -40,7 +40,7 @@
     <selector path="#menu-posts a:icontains(posts)" />
   </useraction>
   <useraction label="New post title" type="ClickLink">
-    <selector path="#the-list a:icontains(new post title)" />
+    <selector path="#the-list a:icontains(new+post+title)" />
   </useraction>
   <assertion type="AssertContent">
     <selector path="#wpbody-content h2" />

@@ -6,7 +6,7 @@ Array.prototype.remove = function(from, to) {
 };
 
 jQuery.expr[':'].icontains = function(a, i, m) { 
-  return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0; 
+  return jQuery(a).text().toUpperCase().indexOf(m[3].replace(/\+/g, ' ').toUpperCase()) >= 0;
 }; 
 
 function SelectorBuilder() {
@@ -80,7 +80,7 @@ function SelectorBuilder() {
     }
    
     if (curr_elem.is('a')) {
-      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase() + ')';
+      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase().replace(/\s/g, '+') + ')';
       path.unshift(anchorMatch);  
       return _traverse($parent, path);
     }
