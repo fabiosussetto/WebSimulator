@@ -5,10 +5,6 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
-jQuery.expr[':'].icontains = function(a, i, m) { 
-  return jQuery(a).text().toUpperCase().indexOf(m[3].replace(/\+/g, ' ').toUpperCase()) >= 0;
-}; 
-
 function SelectorBuilder() {
   
   // Public interface
@@ -19,7 +15,9 @@ function SelectorBuilder() {
     if (path[0][0] == '>') {
       path[0] = path[0].substring(1, path[0].length);
     }
+    console.debug('Unoptimized: ' + path.join(" "));
     path = _optimize(elem, path);
+    console.debug('Actual: ' + path.join(" "));
     return path.join(" "); 
   }
   
@@ -33,13 +31,15 @@ function SelectorBuilder() {
       $.each(test, function(index, item){
         if (item[0] == '#') ids++; 
       });
+      if (test[i].indexOf(':eq') > 0 && $(test[i]).is('ol li')) {
+        continue;
+      }
       if (test[i][0] == '#') {
         var idElem = $(test[i]);
         if (idElem.is('tr, td')) {
           test.remove(i);
         } else {
           if (ids > 1) {
-            $('.__check__').removeClass('__check__');
             return test.slice(i, test.length);
           }
         }
@@ -67,33 +67,10 @@ function SelectorBuilder() {
       path.unshift('#' + id);
       return _traverse($parent, path);
     }    
-
-    //if ($.inArray(tagName, ['div', 'span', 'p', 'ul', 'ol', 'li']) < 0) {
-   
-    if (curr_elem.is(':input')) {
-      var name = curr_elem.attr('name');
-      if (name !== undefined) {
-        var inputMatch = tagName + '[name="' + name + '"]';
-        path.unshift(inputMatch);    
-        return _traverse($parent, path); 
-      }     
-    }
-   
-    if (curr_elem.is('a')) {
-      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase().replace(/\s/g, '+') + ')';
-      path.unshift(anchorMatch);  
+    /*if ($.inArray(tagName, ['span', 'strong', 'p', 'cite']) >= 0) {
       return _traverse($parent, path);
-    }
-    
-    elem_class = curr_elem.attr('class');
-    if (elem_class !== undefined && elem_class.length != 0) {     
-      if (elem_class.match(/ /)) {
-        elem_class = elem_class.split(' ')[0];
-      }
-      path.unshift('.' + elem_class);   
-    } else {                           
-      path.unshift(tagName);
-    }
+    }*/
+    path = _handleType(curr_elem, path);
     
     if ($(path.join(' '), $parent).length > 1) {
       if (path[0][0] == '.') {
@@ -109,5 +86,52 @@ function SelectorBuilder() {
 
     return _traverse(curr_elem.parent(), path);
   }  
+  
+  function _handleType(curr_elem, path) {
+    var tagName = curr_elem[0].tagName.toLowerCase();
+    if (curr_elem.is('a')) {
+      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase() + ')';
+      path.unshift(anchorMatch);  
+      return path;
+    }  
+    role = curr_elem.attr('role');
+    if (role !== undefined && role.length != 0) {     
+      role = role.split(' ')[0];
+      path.unshift(tagName + '[role=' + role + ']');   
+      return path;
+    }
+    if (curr_elem.is(':input')) {
+      var name = curr_elem.attr('name');
+      if (name !== undefined) {
+        var inputMatch = tagName + '[name=' + name + ']';
+        path.unshift(inputMatch);    
+        return path;
+      }     
+    }
+    if (curr_elem.is('label')) {
+      var forAttribute = curr_elem.attr('for');
+      if (forAttribute !== undefined) {
+        var match = tagName + '[for=' + forAttribute + ']';
+        path.unshift(match);    
+        return path;
+      }     
+    }
+    if (curr_elem.is('ol li')) {
+      index = curr_elem.index();      
+      var match = tagName + ':eq(' + index + ')';;
+      path.unshift(match);    
+      return path;
+    }
+    elem_class = curr_elem.attr('class');
+    if (elem_class !== undefined && elem_class.length != 0) {     
+      if (elem_class.match(/ /)) {
+        elem_class = elem_class.split(' ')[0];
+      }
+      path.unshift('.' + elem_class);   
+      return path;
+    }                         
+    path.unshift(tagName);
+    return path;
+  }
   
 }

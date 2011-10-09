@@ -91,7 +91,7 @@ class ClickLinkAction(UserAction):
         if not simulator.assertExists(self.selector):
             raise DomElementNotFound(self.selector)
         
-        jscode = "%s('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
+        jscode = "%s.smartSelector.select('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
         simulator.runjs(jscode)
     
     def _execute_native(self, simulator):
@@ -109,7 +109,7 @@ class ClickButtonAction(UserAction):
         if not simulator.assertExists(self.selector):
             raise DomElementNotFound(self.selector)
         
-        jscode = "%s('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
+        jscode = "%s.smartSelector.select('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
         simulator.runjs(jscode)
         return simulator.wait_load()
     

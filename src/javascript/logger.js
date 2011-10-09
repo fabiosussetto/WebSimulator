@@ -2,10 +2,6 @@
   $(function(){
     // Logger
     
-    /*$('body').click(function(){
-      alert('ciao');
-    });*/
-    
     function _findLabel(element) {
       var labelText = null;
       var id = element.attr('id');
@@ -60,7 +56,7 @@
       _Logger.link(selector, $this.text());
     });
     
-    $(':submit').live('click', function(){
+    $(':submit, input[type=image]').live('click', function(){
       var $this = $(this);
       var builder = new SelectorBuilder();
       var selector = builder.buildPath($this);

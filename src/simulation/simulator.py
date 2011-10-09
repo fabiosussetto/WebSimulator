@@ -100,6 +100,7 @@ class Simulator(QObject):
         self.load_js()
     
     def play(self, playActions):
+        self.logger.setEnable(False);
         self.startSimulation.emit()
         for index, action in enumerate(playActions):
             modelIndex = self.actionsModel.index(index, 0, QModelIndex())
