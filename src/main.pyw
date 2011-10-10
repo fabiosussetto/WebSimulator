@@ -40,7 +40,6 @@ class MainWindow(QMainWindow):
         
         self.mainSplitter.addWidget(splitterRight)
         
-        
         rightLayout = QVBoxLayout(splitterRight)
         
         rightLayout.addWidget(self.treeWidget)
@@ -76,9 +75,6 @@ class MainWindow(QMainWindow):
         self.assertionDlg = AssertionDlg(self.actionsModel, pickedData, self)
         self.assertionDlg.setModal(False)
         self.assertionDlg.show()
-        #if self.assertionDlg.exec_():
-            #pass
-            #data = self.assertionDlg.data
         
     def _buildAddressBar(self):
         self.urlBar = QLineEdit()
@@ -154,7 +150,6 @@ class MainWindow(QMainWindow):
         
     def _onPathPicked(self, pickedData):
         self.pathLabel.setText(pickedData.selector)
-        #self.openAssertionDlg(pickedData)
         
     def _onNewAssertionClicked(self):
         self.openAssertionDlg(self.simulator.picker.pickedData)
@@ -170,7 +165,6 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("Opened file %s" % fname, 2000) 
     
     def _onStartPlayAction(self, index):
-        #self.treeWidget.selectionModel().select(self.actionsModel.index(index))
         self.treeWidget.setCurrentIndex(self.actionsModel.index(index, 0, QModelIndex()))
         
     def buildActions(self):
