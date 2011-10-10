@@ -29,8 +29,6 @@ jQuery.expr[':'].icontains = function(a, i, m) {
     
     function tryGet(selector) {
       var originalSelector = selector;
-      // remove spaces inside pseudo-elements like :contains(), in order to split
-      //selector = selector.replace(/\(([^ ]+)( )+([^ ]+)\)/ , '($1_|_$3)');
       var path = selector.split(' ');
       if (path.length === 1) {
         return $(originalSelector);
@@ -44,7 +42,6 @@ jQuery.expr[':'].icontains = function(a, i, m) {
       var arr = weighed;
       while (arr.length > 0) {
         var path = joinPath(arr);
-        console.debug(path);
         var test = $(path); 
         if (test.length == 1) {
           return test;
@@ -54,7 +51,6 @@ jQuery.expr[':'].icontains = function(a, i, m) {
       
       // try at least with the remaining element
       test = $(originalPath[originalPath.length - 1]);
-      console.warn(originalPath[originalPath.length - 1]);
       if (test.length > 0) {
         return test;
       }
@@ -111,7 +107,6 @@ jQuery.expr[':'].icontains = function(a, i, m) {
       return 100 * index;
     };
     
-    function _optimize(elem, path) { }
   }
 
   $.smartSelector = new SmartSelector();

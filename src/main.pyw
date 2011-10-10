@@ -38,18 +38,10 @@ class MainWindow(QMainWindow):
         
         self._buildActionsTree()
         
-        rightTabs = QTabWidget()
-        self.mainSplitter.addWidget(rightTabs)
-        actionsTab = QWidget()
-        actionsTab.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        self.mainSplitter.addWidget(splitterRight)
         
-        rightTabs.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         
-        assertionsTab = QWidget()
-        rightTabs.addTab(actionsTab, "Actions")
-        rightTabs.addTab(assertionsTab, "Assertions")
-        
-        rightLayout = QVBoxLayout(actionsTab)
+        rightLayout = QVBoxLayout(splitterRight)
         
         rightLayout.addWidget(self.treeWidget)
         actionsToolbox = QHBoxLayout()
@@ -90,7 +82,7 @@ class MainWindow(QMainWindow):
         
     def _buildAddressBar(self):
         self.urlBar = QLineEdit()
-        self.urlGo = QPushButton("Vai")
+        self.urlGo = QPushButton("Visit")
         self.connect(self.urlGo, SIGNAL("clicked()"), self._onUrlGo)
         self.urlLayout = QHBoxLayout()
         self.urlLayout.addWidget(self.urlBar)
