@@ -58,7 +58,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.loadingLabel)
         layout.addWidget(self.pathLabel)
         
-        self.setWindowTitle("Test Webkit")
+        self.setWindowTitle("Web Acceptance Testing")
         self.setMinimumSize(1200, 600)
         
         #editMenu = self.menuBar().addMenu("Edit")
@@ -173,8 +173,9 @@ class MainWindow(QMainWindow):
         newAssertionAction = Gui.createAction(self, "New assertion", self._onNewAssertionClicked, "Ctrl+A", "eye", "New assertion")
         saveAction = Gui.createAction(self, "Save", self._onSaveActionsClicked, "Ctrl+S", "disk", "Save recorded session")
         openAction = Gui.createAction(self, "Open", self._onOpenActionsClicked, "Ctrl+O", "folder", "Open saved session")
-        mainToolbar = self.addToolBar("Recording")
+        mainToolbar = QToolBar("Main actions")
         mainToolbar.addActions((pickerAction, recordAction, newAssertionAction, saveAction, openAction))
+        self.addToolBar(Qt.LeftToolBarArea, mainToolbar)
         
 if __name__ == '__main__':
     pass
