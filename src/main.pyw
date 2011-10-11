@@ -80,6 +80,7 @@ class MainWindow(QMainWindow):
         self.urlBar = QLineEdit()
         self.urlGo = QPushButton("Visit")
         self.connect(self.urlGo, SIGNAL("clicked()"), self._onUrlGo)
+        self.connect(self.simulator.webframe, SIGNAL("urlChanged(QUrl)"), self._onUrlChanged)
         self.urlLayout = QHBoxLayout()
         self.urlLayout.addWidget(self.urlBar)
         self.urlLayout.addWidget(self.urlGo)
@@ -147,6 +148,9 @@ class MainWindow(QMainWindow):
         
     def _onPageLoaded(self):
         self.loadingLabel.hide()
+        
+    def _onUrlChanged(self, url):
+        self.urlBar.setText(url.toString())
         
     def _onPathPicked(self, pickedData):
         self.pathLabel.setText(pickedData.selector)

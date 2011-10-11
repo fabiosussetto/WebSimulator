@@ -40,6 +40,7 @@ function SelectorBuilder() {
           test.remove(i);
         } else {
           if (ids > 1) {
+            $('.__check__').removeClass('__check__');
             return test.slice(i, test.length);
           }
         }
