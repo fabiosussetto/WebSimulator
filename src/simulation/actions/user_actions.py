@@ -96,6 +96,13 @@ class ClickLinkAction(UserAction):
     
     def _execute_native(self, simulator):
         where = simulator.getElementPosition(self.selector)
+        pageGeometry = simulator.webframe.geometry()
+        if not pageGeometry.contains(where):
+            offset = where.y() - pageGeometry.height();
+            simulator.webframe.scroll(0, offset + 10)
+            print where.y()
+            print pageGeometry.height()
+            where.setY(where.y() - offset - 10)
         QTest.mouseMove(simulator.webview, where)
         QTest.mouseClick(simulator.webview, Qt.LeftButton, Qt.NoModifier, where)
         
