@@ -123,7 +123,22 @@ $(function(){
         return false;
       }
       regex = new RegExp(text, "i");
-      return regex.test(element.text());
+      var test = '';
+      if (element.is(':input')) {
+        test = element.val();
+      } else {
+        test = element.text();
+      }
+      return regex.test(test);
+    };
+    
+    this.count = function count(selector, context) {
+      if (context) {
+        var element = $(context).find(selector);  
+      } else {
+        var element = $(selector);
+      }
+      return element.length;
     }; 
   }
   

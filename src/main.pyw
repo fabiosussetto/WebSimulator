@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
         self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         
-        self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/wp2.xml"))
+        self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/good_2.xml"))
         
     def openAssertionDlg(self, pickedData):
         self.assertionDlg = AssertionDlg(self.actionsModel, pickedData, self)
@@ -102,6 +102,7 @@ class MainWindow(QMainWindow):
         self.treeWidget = QTreeView()
         self.treeWidget.setModel(self.actionsModel)
         self.connect(self.simulator, SIGNAL("startPlayAction(int)"), self._onStartPlayAction)
+        self.connect(self.simulator, SIGNAL("endSimulation()"), self._onEndSimulation)
         
         self.btnPlayAction = QToolButton()
         self.btnPlayAction.setText('Play')
@@ -151,6 +152,9 @@ class MainWindow(QMainWindow):
         
     def _onUrlChanged(self, url):
         self.urlBar.setText(url.toString())
+        
+    def _onEndSimulation(self):
+        self.treeWidget.setCurrentIndex(QModelIndex())    
         
     def _onPathPicked(self, pickedData):
         self.pathLabel.setText(pickedData.selector)

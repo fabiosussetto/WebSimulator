@@ -91,7 +91,7 @@ function SelectorBuilder() {
   function _handleType(curr_elem, path) {
     var tagName = curr_elem[0].tagName.toLowerCase();
     if (curr_elem.is('a')) {
-      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase() + ')';
+      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase().replace(/\s/g, "+") + ')';
       path.unshift(anchorMatch);  
       return path;
     }  

@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://wptesi/wp_3-1-3/wp-login.php'" type="Visit">
+    <url value="http://wptesi/wp_3-1-3/wp-login.php" />
+  </useraction>
+  <useraction label="Username" type="Fill">
+    <selector path="#user_login" />
+    <content value="admin" />
+  </useraction>
+  <useraction label="Password" type="Fill">
+    <selector path="#user_pass" />
+    <content value="cactus" />
+  </useraction>
+  <useraction label="Log In" type="ClickButton">
+    <selector path="#wp-submit" />
+  </useraction>
+  <useraction label="Add New" type="ClickLink">
+    <selector path="#menu-posts a:icontains(add+new)" />
+  </useraction>
+  <useraction label="Enter title here" type="Fill">
+    <selector path="#title" />
+    <content value="category test" />
+  </useraction>
+  <useraction label="&#10;						+ Add New Category					" type="ClickLink">
+    <selector path="#category-add-toggle" />
+  </useraction>
+  <useraction label="Add New Category" type="Fill">
+    <selector path="#newcategory" />
+    <content value="test" />
+  </useraction>
+  <useraction label="Add New Category" type="ClickButton">
+    <selector path="#category-add-submit" />
+  </useraction>
+  <useraction label="Publish" type="ClickButton">
+    <selector path="#publish" />
+  </useraction>
+  <useraction label="Posts" type="ClickLink">
+    <selector path="#menu-posts .wp-submenu a:icontains(posts)" />
+  </useraction>
+  <useraction label="" type="Select">
+    <selector path="#cat" />
+    <content display="test" value="3" />
+  </useraction>
+  <useraction label="Filter" type="ClickButton">
+    <selector path="#post-query-submit" />
+  </useraction>
+  <useraction label="category test" type="ClickLink">
+    <selector path="#the-list a:icontains(category+test)" />
+  </useraction>
+</actions>

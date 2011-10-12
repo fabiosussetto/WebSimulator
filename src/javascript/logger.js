@@ -17,6 +17,9 @@
           }
         }
       }
+      if (labelText) {
+        labelText = labelText.replace(/[\s]{2,}/g, ' ');
+      }
       return labelText;
     }
     
@@ -49,18 +52,22 @@
       _Logger.select(selector, value, labelText, displayOption);
     });
     
-    $('a').live('click', function(){
-      var $this = $(this);
-      var builder = new SelectorBuilder();
-      var selector = builder.buildPath($this);
-      _Logger.link(selector, $this.text());
+    $('a').each(function(){
+      this.addEventListener('click', function(){
+        var $this = $(this);
+        var builder = new SelectorBuilder();
+        var selector = builder.buildPath($this);
+        _Logger.link(selector, $this.text().replace(/[\s]{2,}/g, ' '));  
+      }, true);
     });
     
-    $(':submit, input[type=image]').live('click', function(){
-      var $this = $(this);
-      var builder = new SelectorBuilder();
-      var selector = builder.buildPath($this);
-      _Logger.submit(selector, $this.attr('value'));
+    $(':submit, input[type=image], :button').each(function(){
+      this.addEventListener('click', function(){
+        var $this = $(this);
+        var builder = new SelectorBuilder();
+        var selector = builder.buildPath($this);
+        _Logger.submit(selector, $this.attr('value'));
+      }, true);
     });
     
   });
