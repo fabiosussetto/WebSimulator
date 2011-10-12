@@ -69,12 +69,12 @@ class AssertCountAction(AssertAction):
         contentNode = node.find("content")
         self.selector = selectorNode.get("path")
         self.context = selectorNode.get("context")
-        self.count = contentNode.get("count")
+        self.count = int(contentNode.get("count"))
         
     def toXML(self):
         element = super(AssertCountAction, self).toXML()
         Et.SubElement(element, "selector", {"path": self.selector, "context": self.context})
-        Et.SubElement(element, "content", {"count": self.count})
+        Et.SubElement(element, "content", {"count": unicode(self.count)})
         return element    
     
         

@@ -61,8 +61,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Web Acceptance Testing")
         self.setMinimumSize(1200, 600)
         
-        #editMenu = self.menuBar().addMenu("Edit")
-        #editToolbar = self.addToolBar("Edit")
         self.buildActions()
         
         self.simulator.load_js()
@@ -155,6 +153,7 @@ class MainWindow(QMainWindow):
         
     def _onEndSimulation(self):
         self.treeWidget.setCurrentIndex(QModelIndex())    
+        self.statusBar().showMessage("Simulation ended.", 2000)
         
     def _onPathPicked(self, pickedData):
         self.pathLabel.setText(pickedData.selector)
