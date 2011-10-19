@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://wptesi/wp_2-8/wp-login.php'" type="Visit">
+    <url value="http://wptesi/wp_2-8/wp-login.php" />
+  </useraction>
+  <useraction label="Username" type="Fill">
+    <selector path="#user_login" />
+    <content value="admin" />
+  </useraction>
+  <useraction label="Password" type="Fill">
+    <selector path="#user_pass" />
+    <content value="cactus" />
+  </useraction>
+  <useraction label="Log In" type="ClickButton">
+    <selector path="#wp-submit" />
+  </useraction>
+  <assertion type="AssertContent">
+    <selector path="#wpbody-content h2" />
+    <content value="Dashboard" />
+  </assertion>
+  <useraction label="Add New" type="ClickLink">
+    <selector path="#menu-posts a:icontains(add+new)" />
+  </useraction>
+  <assertion type="AssertContent">
+    <selector path="#wpbody-content h2" />
+    <content value="Add New Post" />
+  </assertion>
+  <useraction label="Enter title here" type="Fill">
+    <selector path="#title" />
+    <content value="New post title" />
+  </useraction>
+  <useraction label=" + Add New Category" type="ClickLink">
+    <selector path="#category-add-toggle" />
+  </useraction>
+  <useraction label="Add New Category" type="Fill">
+    <selector path="#newcat" />
+    <content value="example" />
+  </useraction>
+  <useraction label="Add New Category" type="ClickButton">
+    <selector path="#category-add-sumbit" />
+  </useraction>
+  <useraction label="Publish" type="ClickButton">
+    <selector path="#publish" />
+  </useraction>
+</actions>
