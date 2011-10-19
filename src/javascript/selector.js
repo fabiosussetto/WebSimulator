@@ -43,7 +43,7 @@ jQuery.expr[':'].icontains = function(a, i, m) {
       while (arr.length > 0) {
         var path = joinPath(arr);
         var test = $(path); 
-        if (test.length == 1) {
+        if (test.length > 0) {
           return test;
         }
         arr = removeMax(arr);

@@ -37,8 +37,8 @@ class FillAction(UserAction):
         self.description = "Fill input for '%s'" % self.label
         
     def execute(self, simulator):
-        self._execute_native(simulator)
-        #self._execute_js(simulator)
+        #self._execute_native(simulator)
+        self._execute_js(simulator)
         
     def fromXML(self, node):
         super(FillAction, self).fromXML(node)
@@ -58,8 +58,14 @@ class FillAction(UserAction):
     
     def _execute_native(self, simulator):
         where = simulator.getElementPosition(self.selector)
+        #Clear previous value to avoid autocomplete quirks
         jscode = "%s.smartSelector.select('%s').val('');" % (simulator.jQueryAlias, self.selector)
         simulator.runjs(jscode)
+        pageGeometry = simulator.webframe.geometry()
+        if not pageGeometry.contains(where):
+            offset = where.y() - pageGeometry.height();
+            simulator.webframe.scroll(0, offset + 10)
+            where.setY(where.y() - offset - 10)
         QTest.mouseClick(simulator.webview, Qt.LeftButton, Qt.NoModifier, where)
         for c in self.value:
             QTest.keyEvent(QTest.Click, simulator.webview, c)
@@ -74,8 +80,8 @@ class ClickLinkAction(UserAction):
         if not simulator.assertExists(self.selector):
             self.error = True
             raise DomElementNotFound(self.selector)
-        self._execute_native(simulator)
-        #self._execute_js(simulator)
+        #self._execute_native(simulator)
+        self._execute_js(simulator)
         return simulator.wait_load()
     
     def fromXML(self, node):
@@ -141,11 +147,14 @@ class SelectAction(UserAction):
         if not simulator.assertExists(self.selector):
             raise DomElementNotFound(self.selector)
         
-        if not simulator.assertExists("%s > option[value=%s]" % (self.selector, self.value)):
-            raise Exception("Could not find an option with value '%s' for select at '%s'" % (self.value, self.selector))
+        if not simulator.assertExists("%s > option:icontains(%s)" % (self.selector, self.displayOption)):
+            raise Exception("Could not find option '%s' for select at '%s'" % (self.displayOption, self.selector))
             
-        escaped_value = self.value.replace("'", "\\'")    
-        jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
+        #escaped_value = self.value.replace("'", "\\'")   
+        escaped_value = self.displayOption.replace("'", "\\'")   
+         
+        #jscode = "%s('%s').val('%s');" % (simulator.jQueryAlias, self.selector, escaped_value)
+        jscode = "%s('%s').simulate('select', {display: '%s'});" % (simulator.jQueryAlias, self.selector, escaped_value)
         
         simulator.runjs(jscode)
     

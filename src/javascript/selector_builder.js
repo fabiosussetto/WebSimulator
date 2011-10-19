@@ -5,6 +5,10 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
+jQuery.expr[':'].icontains = function(a, i, m) { 
+  return jQuery(a).text().toUpperCase().indexOf(m[3].replace(/\+/g, ' ').toUpperCase()) >= 0; 
+}; 
+
 function SelectorBuilder() {
   
   // Public interface
@@ -36,7 +40,7 @@ function SelectorBuilder() {
       }
       if (test[i][0] == '#') {
         var idElem = $(test[i]);
-        if (idElem.is('tr, td')) {
+        if (test[i].match(/^([^0-9]+[0-9]+)|([0-9]+[^0-9]+)$/g)) {
           test.remove(i);
         } else {
           if (ids > 1) {
@@ -68,9 +72,6 @@ function SelectorBuilder() {
       path.unshift('#' + id);
       return _traverse($parent, path);
     }    
-    /*if ($.inArray(tagName, ['span', 'strong', 'p', 'cite']) >= 0) {
-      return _traverse($parent, path);
-    }*/
     path = _handleType(curr_elem, path);
     
     if ($(path.join(' '), $parent).length > 1) {
@@ -91,7 +92,7 @@ function SelectorBuilder() {
   function _handleType(curr_elem, path) {
     var tagName = curr_elem[0].tagName.toLowerCase();
     if (curr_elem.is('a')) {
-      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase().replace(/\s/g, "+") + ')';
+      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase().replace(/\s+/, "+") + ')';
       path.unshift(anchorMatch);  
       return path;
     }  

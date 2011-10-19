@@ -44,6 +44,7 @@ class Simulator(QObject):
     
     """ Protected properties """
     _load_status = None
+    _is_loading = False
     
     jQueryAlias = '$' 
     
@@ -61,8 +62,8 @@ class Simulator(QObject):
         
         self.connect(self.networkManager, SIGNAL('finished(QNetworkReply *)'), self._on_network_finished)
         
-        self.webpage.connect(self.webpage, SIGNAL('loadFinished(bool)'), self._on_load_finished)
         self.webpage.connect(self.webpage, SIGNAL("loadStarted()"), self._on_load_started)
+        self.webpage.connect(self.webpage, SIGNAL('loadFinished(bool)'), self._on_load_finished)
         
         self.jquery = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery)).read()
         self.jquery_simulate = open(os.path.join(os.path.dirname(__file__), "../javascript/" + self._jquery_simulate)).read()
@@ -81,7 +82,8 @@ class Simulator(QObject):
         request = reply.request()
         ajax_header = request.rawHeader(QByteArray("X-Requested-With"))
         if not ajax_header.isEmpty() and QString(ajax_header).compare("XMLHttpRequest", Qt.CaseInsensitive) == 0:
-            self._load_status = True
+            pass
+            #self._is_loading = False
         
     def createView(self):
         self.webview = QWebView()
@@ -92,10 +94,12 @@ class Simulator(QObject):
         
     def _on_load_started(self):
         self._load_status = None
+        self._is_loading = True
         self.loadingPage.emit()
     
     def _on_load_finished(self, successful):
         self._load_status = successful
+        self._is_loading = False
         self.pageLoaded.emit()
         self.load_js()
     
@@ -143,14 +147,20 @@ class Simulator(QObject):
     def wait_load(self, timeout=10):
         app = QApplication.instance()
         app.processEvents()
-        if self._load_status is not None:
+        '''
+        if not self._is_loading:
             load_status = self._load_status
             self._load_status = None
             return load_status
+        '''
         start_time = time.time()
+        while time.time() - start_time < 0.5:
+            app.processEvents()
         
-        while self._load_status is None:
+        start_time = time.time()
+        while self._is_loading:
             if timeout and time.time() - start_time > timeout:
+                self._is_loading = False
                 raise SimulatorTimeout("Timeout reached: %d seconds" % timeout)
             app.processEvents()
         

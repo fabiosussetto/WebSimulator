@@ -23,6 +23,8 @@
   
   	if (/^drag$/.test(type)) {
   		this[type].apply(this, [this.target, options]);
+  	} else if (type == 'select') {
+  	  this.simulateSelect(el, type, options);
   	} else {
   		this.simulateEvent(el, type, options);
   	}
@@ -35,6 +37,16 @@
   		this.dispatchEvent(el, type, evt, options);
   		return evt;
   	},
+  	
+  	simulateSelect: function(el, type, options) {
+      var $el = $(el);
+      var $option = $el.find('option:icontains(' + options.display +')');
+      if ($option.length === 0) {
+        return false;
+      }
+      var value = $option.attr('value');
+      $el.val(value);
+    },
   	
   	createEvent: function(type, options) {
   		if (/^mouse(over|out|down|up|move)|(dbl)?click$/.test(type)) {
