@@ -109,7 +109,13 @@ $(function(){
     var $this = $(this);
     var builder = new SelectorBuilder();
     var selector = builder.buildPath($this);
-    _Picker.setPath(selector, $this[0].tagName, $this.text());
+    var hint = null;
+    if ($this.is(':input')) {
+      hint = $this.val();
+    } else {
+      hint = $this.text();
+    }
+    _Picker.setPath(selector, $this[0].tagName, hint);
     return false;
   });   
 

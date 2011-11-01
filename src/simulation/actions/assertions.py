@@ -16,13 +16,6 @@ class AssertContentAction(AssertAction):
         result = result.toBool()
         if not result:
             self.passed = False
-            '''
-            image = QImage(simulator.webpage.viewportSize(), QImage.Format_ARGB32)
-            painter = QPainter(image)
-            simulator.webframe.render(painter)
-            painter.end()
-            image.save("output.png")
-            '''
             raise AssertException("Could not find text '%s' inside DOM element at '%s'" % (self.value, self.selector))
         else:
             self.passed = True

@@ -14,6 +14,7 @@ from PyQt4.QtWebKit import *
 from test_cases import wp3testcase, wp2testcase
 import qrc_resources
 from ui.assertion_dialog import AssertionDlg
+from ui.report_dialog import *
 from simulation.actions import *
 from utilities import *
 
@@ -67,14 +68,19 @@ class MainWindow(QMainWindow):
         
         self.simulator.load_js()
         self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
-        #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
-        
         self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/good_1.xml"))
         
     def openAssertionDlg(self, pickedData):
         self.assertionDlg = AssertionDlg(self.actionsModel, pickedData, self)
         self.assertionDlg.setModal(False)
         self.assertionDlg.show()
+        
+    def openReportDlg(self):
+        #self.reportDlg = ReportDlg(self)
+        #self.reportDlg.exec_()
+        msgBox = QMessageBox();
+        msgBox.setText("Simulation ended.");
+        msgBox.exec_();
         
     def _buildAddressBar(self):
         self.urlBar = QLineEdit()
@@ -155,8 +161,9 @@ class MainWindow(QMainWindow):
         
     def _onEndSimulation(self):
         self.treeWidget.setCurrentIndex(QModelIndex())    
-        self.statusBar().showMessage("Simulation ended.", 2000)
-        
+        self.statusBar().showMessage("Simulation ended.", 3000)
+        self.openReportDlg()
+         
     def _onPathPicked(self, pickedData):
         self.pathLabel.setText(pickedData.selector)
         
@@ -176,15 +183,20 @@ class MainWindow(QMainWindow):
     def _onStartPlayAction(self, index):
         self.treeWidget.setCurrentIndex(self.actionsModel.index(index, 0, QModelIndex()))
         
+    def _onLoggerStatusChange(self, enabled):
+        self.recordAction.setEnabled(enabled)    
+        
     def buildActions(self):
         pickerAction = Gui.createAction(self, "Invert", self._onPickerClicked, "Ctrl+P", "pipette", "Toggle picker", True, "toggled(bool)")
-        recordAction = Gui.createAction(self, "Record", self._onRecordClicked, "Ctrl+R", "record", "Toggle recording", True, "toggled(bool)")
+        self.recordAction = Gui.createAction(self, "Record", self._onRecordClicked, "Ctrl+R", "record", "Toggle recording", True, "toggled(bool)")
         newAssertionAction = Gui.createAction(self, "New assertion", self._onNewAssertionClicked, "Ctrl+A", "eye", "New assertion")
         saveAction = Gui.createAction(self, "Save", self._onSaveActionsClicked, "Ctrl+S", "disk", "Save recorded session")
         openAction = Gui.createAction(self, "Open", self._onOpenActionsClicked, "Ctrl+O", "folder", "Open saved session")
         mainToolbar = QToolBar("Main actions")
-        mainToolbar.addActions((pickerAction, recordAction, newAssertionAction, saveAction, openAction))
+        mainToolbar.addActions((pickerAction, self.recordAction, newAssertionAction, saveAction, openAction))
         self.addToolBar(Qt.LeftToolBarArea, mainToolbar)
+        
+        self.connect(self.simulator.logger, SIGNAL("statusChanged(bool)"), self._onLoggerStatusChange)
         
 if __name__ == '__main__':
     pass

@@ -132,7 +132,9 @@ class AssertionDlg(QDialog):
     def _onPickClicked(self):
         self._pathTarget = self.selectorEdit
         self.hide()
+        
         self.parent.simulator.picker.setEnable(True)
+        self.parent.simulator.logger.setEnable(False)
         
     def _onBtnCountPathClicked(self):
         self._pathTarget = self.countSelectorEdit
@@ -150,4 +152,5 @@ class AssertionDlg(QDialog):
         self._pathTarget.setText(pickedData.selector)
         self.contentEdit.setText(pickedData.value)
         self.parent.simulator.picker.setEnable(False)
+        self.parent.simulator.logger.setEnable(True)
         

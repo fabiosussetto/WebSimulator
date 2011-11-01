@@ -1,15 +1,19 @@
-from PyQt4.QtCore import QObject, pyqtSignature
+from PyQt4.QtCore import QObject, pyqtSignature, pyqtSignal
 import actions
 
 class Logger(QObject): 
     
     enabled = False
     
+    """ Signals emitted by this class """
+    statusChanged = pyqtSignal(bool)
+    
     def __init__(self):
         super(Logger, self).__init__()
     
     def setEnable(self, enable):
         self.enabled = enable
+        self.statusChanged.emit(self.enabled)
         
     def isEnabled(self):
         return self.enabled    

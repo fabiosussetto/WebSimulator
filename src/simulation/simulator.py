@@ -8,13 +8,8 @@ import os
 import time
 import re
 
-#from PyQt4.QtCore import pyqtSignal, SIGNAL, QUrl, QString, Qt, QObject, QEvent
-#from PyQt4.QtCore import QSize, QDateTime, QPoint
-#from PyQt4.QtGui import QApplication, QImage, QPainter
-#from PyQt4.QtGui import QCursor, QMouseEvent, QKeyEvent
 from PyQt4.QtNetwork import QNetworkCookie, QNetworkAccessManager
 from PyQt4.QtNetwork import QNetworkCookieJar, QNetworkRequest, QNetworkProxy
-#from PyQt4.QtWebKit import QWebPage, QWebView
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
