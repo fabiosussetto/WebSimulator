@@ -17,6 +17,8 @@ from ui.assertion_dialog import AssertionDlg
 from simulation.actions import *
 from utilities import *
 
+MyBorderRole = Qt.UserRole + 1
+
 class MainWindow(QMainWindow):
     
     def __init__(self, parent=None):
@@ -101,6 +103,8 @@ class MainWindow(QMainWindow):
     def _buildActionsTree(self):
         self.treeWidget = QTreeView()
         self.treeWidget.setModel(self.actionsModel)
+        delegate = BorderItemDelegate(self.treeWidget, MyBorderRole) 
+        self.treeWidget.setItemDelegate(delegate)
         self.connect(self.simulator, SIGNAL("startPlayAction(int)"), self._onStartPlayAction)
         self.connect(self.simulator, SIGNAL("endSimulation()"), self._onEndSimulation)
         

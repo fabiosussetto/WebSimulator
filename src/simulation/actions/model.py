@@ -247,32 +247,37 @@ class TreeModel(QAbstractItemModel):
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
                 
-class ActionListModel(QAbstractListModel):
+class BorderItemDelegate(QStyledItemDelegate):
+    def __init__(self, parent, borderRole):
+        super(BorderItemDelegate, self).__init__(parent)
+        self.borderRole = borderRole
 
-    def __init__(self):
-        super(ActionListModel, self).__init__()
-        self.dirty = False
-        self.actions = []
+    def sizeHint(self, option, index):        
+        size = super(BorderItemDelegate, self).sizeHint(option, index)
+        pen = index.data(self.borderRole).toPyObject()
+        if pen is not None:        
+            width = max(pen.width(), 1)            
+            size = size + QSize(2 * width, 2 * width)
+        return size
 
-    def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid() or not (0 <= index.row() < len(self.actions)):
-            return QVariant()
-        action = self.actions[index.row()]
-        #column = index.column()
-        if role == Qt.DisplayRole:
-            return QVariant(action.type)            
-        return QVariant()
+    def paint(self, painter, option, index):
+        item = index.internalPointer()
+        if item.type == TreeItem.DETAIL_NODE:
+            return super(BorderItemDelegate, self).paint(painter, option, index) 
+        
+        pen = QPen(QColor.fromRgb(221, 221, 221))
+        pen.setWidth(0.5)
+        rect = QRect(option.rect)
+        if pen is not None:
+            width = max(pen.width(), 1)
+            option.rect.adjust(width, width, -width, -width)      
 
-    def rowCount(self, index=QModelIndex()):
-        return len(self.actions)
-    
-    def columnCount(self, index=QModelIndex()):
-        return 1
-    
-    def insertRows(self, action, position, rows=1, index=QModelIndex()):
-        self.beginInsertRows(QModelIndex(), position, position + rows - 1)
-        self.actions.insert(position, action)
-        self.endInsertRows()
-        self.dirty = True
-        return True
+        super(BorderItemDelegate, self).paint(painter, option, index)
+
+        if pen is not None:
+            painter.save()  
+            painter.setClipRect(rect, Qt.ReplaceClip);          
+            painter.setPen(pen)
+            painter.drawLine(rect.bottomLeft(), rect.bottomRight())     
+            painter.restore()
     
