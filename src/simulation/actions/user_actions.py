@@ -132,6 +132,7 @@ class ClickButtonAction(UserAction):
     def toXML(self):
         element = super(ClickButtonAction, self).toXML()
         element.set("label", self.label)
+        print self.selector
         Et.SubElement(element, "selector", {"path": self.selector})
         return element 
     

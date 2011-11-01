@@ -19,9 +19,9 @@ function SelectorBuilder() {
     if (path[0][0] == '>') {
       path[0] = path[0].substring(1, path[0].length);
     }
-    console.debug('Unoptimized: ' + path.join(" "));
+    //console.debug('Unoptimized: ' + path.join(" "));
     path = _optimize(elem, path);
-    console.debug('Actual: ' + path.join(" "));
+    //console.debug('Actual: ' + path.join(" "));
     return path.join(" "); 
   }
   
@@ -92,7 +92,7 @@ function SelectorBuilder() {
   function _handleType(curr_elem, path) {
     var tagName = curr_elem[0].tagName.toLowerCase();
     if (curr_elem.is('a')) {
-      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase().replace(/\s+/, "+") + ')';
+      var anchorMatch = 'a:icontains(' + curr_elem.text().toLowerCase().replace(/\s+/g, "+") + ')';
       path.unshift(anchorMatch);  
       return path;
     }  

@@ -68,6 +68,11 @@ class TreeModel(QAbstractItemModel):
 
     def columnCount(self, parent=None):
         return 1
+    
+    def headerData(self, section, orientation, role):
+        if role != Qt.DisplayRole:
+            return QVariant()
+        return QString("Actions:")
 
     def data(self, index, role):
         if not index.isValid():
@@ -75,6 +80,8 @@ class TreeModel(QAbstractItemModel):
 
         item = index.internalPointer()
         if role == Qt.DisplayRole:
+            return QVariant(item.value)
+        if role == Qt.ToolTipRole:
             return QVariant(item.value)
         if role == Qt.UserRole:
             if item:

@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
     def _buildWebView(self):
         self.simulator.createView()
         self.browser = self.simulator.getWidget()
-        self.browser.setMinimumWidth(900)
+        #self.browser.setMinimumWidth(900)
         self.connect(self.simulator, SIGNAL("loadingPage()"), self._onLoadingPage)
         self.connect(self.simulator, SIGNAL("pageLoaded()"), self._onPageLoaded)
         self.connect(self.simulator.picker, SIGNAL("pathPicked(PyQt_PyObject)"), self._onPathPicked)
@@ -94,7 +94,9 @@ class MainWindow(QMainWindow):
         self.loadingLabel = QLabel('Loading page ...')
         self.loadingLabel.setAlignment(Qt.AlignCenter)
         self.loadingLabel.hide()
-        self.pathLabel = QLabel()
+        #self.pathLabel = QLabel()
+        self.pathLabel = QLineEdit()
+        self.pathLabel.setReadOnly(True)
 
     def _buildActionsTree(self):
         self.treeWidget = QTreeView()
@@ -113,10 +115,6 @@ class MainWindow(QMainWindow):
         self.btnClearAction = QToolButton()
         self.btnClearAction.setText('Clear all')
         self.connect(self.btnClearAction, SIGNAL("clicked()"), self._onClearActionClicked)    
-        
-    def _onSimulateClicked(self):
-        test_case = wp3testcase.Wp3TestCase(self.simulator)
-        test_case.run()
         
     def _onUrlGo(self):
         url = QString(self.urlBar.text())

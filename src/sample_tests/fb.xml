@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://facebook.com'" type="Visit">
+    <url value="http://facebook.com" />
+  </useraction>
+  <useraction label="Accedi" type="ClickButton">
+    <selector path="#login_form table tbody &gt; tr:eq(1) &gt; td:eq(2) label[for=urdzar_3] #urdzar_3" />
+  </useraction>
+</actions>

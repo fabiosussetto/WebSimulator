@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://trovamusicisti.it'" type="Visit">
+    <url value="http://trovamusicisti.it" />
+  </useraction>
+  <useraction label="Scrivi annuncio" type="ClickLink">
+    <selector path=".layout .nav .clearfix > li:eq(1) a:icontains(scrivi annuncio)" />
+  </useraction>
+</actions>
