@@ -6,5 +6,8 @@
     <file alias="disk.png">images/disk.png</file>
     <file alias="eye.png">images/eye.png</file>
     <file alias="folder.png">images/folder.png</file>
+    <file alias="play.png">images/play.png</file>
+    <file alias="minus-small.png">images/minus-small.png</file>
+    <file alias="broom.png">images/broom.png</file>
   </qresource>
 </RCC>      

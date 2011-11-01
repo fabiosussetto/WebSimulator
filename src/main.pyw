@@ -116,14 +116,20 @@ class MainWindow(QMainWindow):
         
         self.btnPlayAction = QToolButton()
         self.btnPlayAction.setText('Play')
+        self.btnPlayAction.setIcon(QIcon(":/play.png"))
+        self.btnPlayAction.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.connect(self.btnPlayAction, SIGNAL("clicked()"), self._onPlayActionClicked)    
         
         self.btnRemoveAction = QToolButton()
-        self.btnRemoveAction.setText('-')
+        self.btnRemoveAction.setText('Remove item')
+        self.btnRemoveAction.setIcon(QIcon(":/minus-small.png"))
+        self.btnRemoveAction.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
         
         self.btnClearAction = QToolButton()
         self.btnClearAction.setText('Clear all')
+        self.btnClearAction.setIcon(QIcon(":/broom.png"))
+        self.btnClearAction.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.connect(self.btnClearAction, SIGNAL("clicked()"), self._onClearActionClicked)    
         
     def _onUrlGo(self):
@@ -145,7 +151,9 @@ class MainWindow(QMainWindow):
         self.actionsModel.removeRows(self.treeWidget.currentIndex().row())
         
     def _onClearActionClicked(self):
-        self.actionsModel.removeAllRows()     
+        ret = QMessageBox.warning(self, "Confirm clear", "Are you sure to remove all items?", QMessageBox.Yes, QMessageBox.No)
+        if ret == QMessageBox.Yes:
+            self.actionsModel.removeAllRows()     
         
     def _onPlayActionClicked(self):
         self.simulator.play(self.actionsModel.actions)

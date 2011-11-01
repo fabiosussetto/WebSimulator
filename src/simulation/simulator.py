@@ -110,6 +110,7 @@ class Simulator(QObject):
             self.actionsModel.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), modelIndex, modelIndex)
             self.endPlayAction.emit(index)
         self.endSimulation.emit()
+        self.logger.setEnable(True);
                 
     def load(self, url):
         """Load a web page and return status (a boolean)."""
