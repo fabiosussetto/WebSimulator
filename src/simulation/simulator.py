@@ -6,7 +6,6 @@ Created on May 31, 2011
 
 import os
 import time
-import pyquery
 import re
 
 #from PyQt4.QtCore import pyqtSignal, SIGNAL, QUrl, QString, Qt, QObject, QEvent
