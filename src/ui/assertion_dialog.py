@@ -68,6 +68,7 @@ class AssertionDlg(QDialog):
             action = actions.AssertCountAction(selector, count, context)    
         
         self.actionsModel.insertRow(action)
+        self.parent.simulator.logger.setEnable(True)
         QDialog.accept(self)    
         
     def comboboxChanged(self, index):
@@ -131,20 +132,22 @@ class AssertionDlg(QDialog):
         
     def _onPickClicked(self):
         self._pathTarget = self.selectorEdit
+        self._commonPicked()
         self.hide()
-        
-        self.parent.simulator.picker.setEnable(True)
-        self.parent.simulator.logger.setEnable(False)
         
     def _onBtnCountPathClicked(self):
         self._pathTarget = self.countSelectorEdit
+        self._commonPicked()
         self.hide()
-        self.parent.simulator.picker.setEnable(True)
     
     def _onBtnCountContextClicked(self):
         self._pathTarget = self.countContextEdit
+        self._commonPicked()
         self.hide()
+        
+    def _commonPicked(self):
         self.parent.simulator.picker.setEnable(True)
+        self.parent.simulator.logger.setEnable(False)    
         
     # Called when user finish to select the element    
     def _onPathPicked(self, pickedData):
@@ -152,5 +155,3 @@ class AssertionDlg(QDialog):
         self._pathTarget.setText(pickedData.selector)
         self.contentEdit.setText(pickedData.value)
         self.parent.simulator.picker.setEnable(False)
-        self.parent.simulator.logger.setEnable(True)
-        

@@ -136,6 +136,30 @@ class ClickButtonAction(UserAction):
         Et.SubElement(element, "selector", {"path": self.selector})
         return element 
     
+class ClickRadioAction(UserAction):
+    
+    def __init__(self, selector=None, label=None, xmlNode=None):
+        super(ClickRadioAction, self).__init__(selector, None, label, xmlNode)
+        self.description = "Click radio '%s'" % self.label
+        
+    def execute(self, simulator):
+        if not simulator.assertExists(self.selector):
+            raise DomElementNotFound(self.selector)
+        
+        jscode = "%s.smartSelector.select('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
+        simulator.runjs(jscode)
+        return simulator.wait_load()
+    
+    def fromXML(self, node):
+        super(ClickRadioAction, self).fromXML(node)
+    
+    def toXML(self):
+        element = super(ClickRadioAction, self).toXML()
+        element.set("label", self.label)
+        print self.selector
+        Et.SubElement(element, "selector", {"path": self.selector})
+        return element     
+    
 class SelectAction(UserAction):
     
     def __init__(self, selector=None, value=None, label=None, displayOption=None, xmlNode=None):

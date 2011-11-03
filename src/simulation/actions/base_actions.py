@@ -49,6 +49,9 @@ class UserAction(Action):
             self.label = unicode(label)
         else:
             self.fromXML(xmlNode)
+            
+    def reset(self):
+        self.error = False        
 
     @abstractmethod
     def fromXML(self, node):
@@ -83,7 +86,10 @@ class AssertAction(Action):
             self.value = unicode(value)
         else:
             self.fromXML(xmlNode)
-        self.passed = None     
+        self.passed = None   
+        
+    def reset(self):
+        self.passed = None      
         
     @abstractmethod
     def fromXML(self, node):

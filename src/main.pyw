@@ -51,6 +51,7 @@ class MainWindow(QMainWindow):
         rightLayout.addLayout(actionsToolbox)
         
         actionsToolbox.addWidget(self.btnPlayAction)
+        actionsToolbox.addWidget(self.btnResetAction)
         actionsToolbox.addWidget(self.btnRemoveAction)
         actionsToolbox.addWidget(self.btnClearAction)
         
@@ -67,8 +68,9 @@ class MainWindow(QMainWindow):
         self.buildActions()
         
         self.simulator.load_js()
-        self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
-        self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/good_1.xml"))
+        #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
+        self.simulator.load('http://localhost/ajax_app/testapp/')
+        #self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/good_1.xml"))
         
     def openAssertionDlg(self, pickedData):
         self.assertionDlg = AssertionDlg(self.actionsModel, pickedData, self)
@@ -120,8 +122,14 @@ class MainWindow(QMainWindow):
         self.btnPlayAction.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.connect(self.btnPlayAction, SIGNAL("clicked()"), self._onPlayActionClicked)    
         
+        self.btnResetAction = QToolButton()
+        self.btnResetAction.setText('Reset')
+        self.btnResetAction.setIcon(QIcon(":/reset.png"))
+        self.btnResetAction.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.connect(self.btnResetAction, SIGNAL("clicked()"), self._onResetActionClicked)    
+        
         self.btnRemoveAction = QToolButton()
-        self.btnRemoveAction.setText('Remove item')
+        self.btnRemoveAction.setText('Remove')
         self.btnRemoveAction.setIcon(QIcon(":/minus-small.png"))
         self.btnRemoveAction.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.connect(self.btnRemoveAction, SIGNAL("clicked()"), self._onRemoveActionClicked)
@@ -157,6 +165,9 @@ class MainWindow(QMainWindow):
         
     def _onPlayActionClicked(self):
         self.simulator.play(self.actionsModel.actions)
+        
+    def _onResetActionClicked(self):
+        self.actionsModel.resetState() 
     
     def _onLoadingPage(self):
         self.loadingLabel.show()  
@@ -185,14 +196,14 @@ class MainWindow(QMainWindow):
             
     def _onOpenActionsClicked(self):
         fname = QFileDialog.getOpenFileName(self, "Choose a session file", QString(""), "Action XML files (*.xml)")
-        if self.actionsModel.loadFromXml(fname): 
+        if fname and self.actionsModel.loadFromXml(fname): 
             self.statusBar().showMessage("Opened file %s" % fname, 2000) 
     
     def _onStartPlayAction(self, index):
         self.treeWidget.setCurrentIndex(self.actionsModel.index(index, 0, QModelIndex()))
         
     def _onLoggerStatusChange(self, enabled):
-        self.recordAction.setEnabled(enabled)    
+        self.recordAction.setChecked(enabled)    
         
     def buildActions(self):
         pickerAction = Gui.createAction(self, "Invert", self._onPickerClicked, "Ctrl+P", "pipette", "Toggle picker", True, "toggled(bool)")
@@ -211,6 +222,7 @@ if __name__ == '__main__':
 
 
 app = QApplication(sys.argv)
+QCoreApplication.setOrganizationName("AcceptanceTest")
 form = MainWindow() 
 form.show() 
 app.exec_()

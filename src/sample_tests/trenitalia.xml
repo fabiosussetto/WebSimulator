@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://trenitalia.it'" type="Visit">
+    <url value="http://trenitalia.it" />
+  </useraction>
+  <useraction label="1. Da dove vuoi partire?" type="Fill">
+    <selector path="#stazin" />
+    <content value="torino" />
+  </useraction>
+  <useraction label="2. Dove vuoi arrivare?" type="Fill">
+    <selector path="#stazout" />
+    <content value="milano" />
+  </useraction>
+  <useraction label="giorno" type="Fill">
+    <selector path="#datag" />
+    <content value="8" />
+  </useraction>
+  <useraction label="ore" type="Fill">
+    <selector path="#timsh" />
+    <content value="15" />
+  </useraction>
+  <useraction label="" type="ClickButton">
+    <selector path="#formcruscotto .btnInviaCruscRest" />
+  </useraction>
+  <useraction label="" type="ClickRadio">
+    <selector path="#contentBox #sel1" />
+  </useraction>
+  <useraction label=" PROCEDI » " type="ClickLink">
+    <selector path="#contentBox a:icontains(procedi+»)" />
+  </useraction>
+  <useraction label="" type="Select">
+    <selector path="#contentBox #morerates_1" />
+    <content display="Tariffa+39/A" value="1_1_1_1" />
+  </useraction>
+  <useraction label="Classe del viaggio:" type="Select">
+    <selector path="#classe" />
+    <content display="1" value="1" />
+  </useraction>
+  <assertion type="AssertContent">
+    <selector path="#total_id" />
+    <content value="15,00" />
+  </assertion>
+</actions>

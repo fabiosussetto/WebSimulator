@@ -22,7 +22,7 @@ class Logger(QObject):
         self.model = model
         
     def _recordAction(self, action):
-        if self.enabled:
+        if self.isEnabled():
             self.model.insertRow(action)
     
     @pyqtSignature("QString, QString, QString")
@@ -36,6 +36,10 @@ class Logger(QObject):
     @pyqtSignature("QString, QString")
     def checkbox(self, path, value):
         print "%s : %s" % (path, value)
+    
+    @pyqtSignature("QString, QString")
+    def radio(self, path, label):
+        self._recordAction(actions.ClickRadioAction(path, label))
     
     @pyqtSignature("QString, QString")
     def link(self, path, text=""):

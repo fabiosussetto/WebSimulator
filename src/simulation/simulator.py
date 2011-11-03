@@ -51,6 +51,8 @@ class Simulator(QObject):
         super(Simulator, self).__init__()
         self.actionsModel = model
         self.webpage = QWebPage()
+        self.webpage.settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
+        
         self.webframe = self.webpage.mainFrame()
         self.networkManager = self.webpage.networkAccessManager()
         

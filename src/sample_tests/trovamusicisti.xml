@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<actions>
-  <useraction label="Visit 'http://www.trovamusicisti.it'" type="Visit">
-    <url value="http://www.trovamusicisti.it" />
-  </useraction>
-  <useraction label="Cercasi Tastierista per cover band Nightwish" type="ClickLink">
-    <selector path="#post-container a:icontains(cercasi+tastierista+per+cover+band+nightwish)" />
-  </useraction>
-</actions>

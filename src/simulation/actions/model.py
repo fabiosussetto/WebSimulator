@@ -171,6 +171,11 @@ class TreeModel(QAbstractItemModel):
         self.endRemoveRows()
         self.dirty = True 
         
+    def resetState(self):
+        for action in self.actions:
+            action.reset()
+        self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), QModelIndex(), QModelIndex())    
+        
     def setupModelData(self):
         for action in self.actions:
             self.addItem(action)

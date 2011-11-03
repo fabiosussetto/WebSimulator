@@ -9,5 +9,6 @@
     <file alias="play.png">images/play.png</file>
     <file alias="minus-small.png">images/minus-small.png</file>
     <file alias="broom.png">images/broom.png</file>
+    <file alias="reset.png">images/reset.png</file>
   </qresource>
 </RCC>      

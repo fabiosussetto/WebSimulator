@@ -23,7 +23,7 @@
       return labelText;
     }
     
-    $(':text, :password, textarea').live('blur', function(){
+    $(':text, :password, textarea').live('change', function(){
       var $this = $(this);
       var builder = new SelectorBuilder();
       var selector = builder.buildPath($this);
@@ -39,7 +39,16 @@
       var $this = $(this);
       var builder = new SelectorBuilder();
       var selector = builder.buildPath($this);
-      _Logger.checkbox(selector, $this.val());
+      var labelText = _findLabel($this);
+      _Logger.checkbox(selector, labelText);
+    });
+    
+    $(':radio').live('click', function(){
+      var $this = $(this);
+      var builder = new SelectorBuilder();
+      var selector = builder.buildPath($this);
+      var labelText = _findLabel($this);
+      _Logger.radio(selector, labelText);
     });
     
     $('select').live('change',function(){
@@ -48,7 +57,7 @@
       var selector = builder.buildPath($this);
       var value = $this.val();
       var displayOption = $('option[value=' + value + ']', $this).text();
-      labelText = _findLabel($this);
+      var labelText = _findLabel($this);
       _Logger.select(selector, value, labelText, displayOption);
     });
     
