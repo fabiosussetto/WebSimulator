@@ -17,6 +17,9 @@ class Action(object):
     def __init__(self):
         pass
     
+    def getDescription(self):
+        return 'Unknow action'    
+    
     @abstractmethod    
     def execute(self, simulator):
         pass

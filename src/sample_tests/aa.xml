@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://localhost/ajax_app/testapp/before1/index.php'" type="Visit">
+    <url

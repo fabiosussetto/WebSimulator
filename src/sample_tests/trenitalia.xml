@@ -28,16 +28,8 @@
   <useraction label=" PROCEDI » " type="ClickLink">
     <selector path="#contentBox a:icontains(procedi+»)" />
   </useraction>
-  <useraction label="" type="Select">
-    <selector path="#contentBox #morerates_1" />
-    <content display="Tariffa+39/A" value="1_1_1_1" />
-  </useraction>
-  <useraction label="Classe del viaggio:" type="Select">
-    <selector path="#classe" />
-    <content display="1" value="1" />
-  </useraction>
   <assertion type="AssertContent">
-    <selector path="#total_id" />
-    <content value="15,00" />
+    <selector path="#contentBox .sceltaTariffe &gt; div.boxCont:eq(0) .bg strong" />
+    <content value="Scelta Tariffa" />
   </assertion>
 </actions>

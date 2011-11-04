@@ -8,7 +8,9 @@ class AssertContentAction(AssertAction):
     
     def __init__(self, selector=None, value=None, xmlNode=None):
         super(AssertContentAction, self).__init__(selector, value, xmlNode)
-        self.description = 'Assert contain text'
+        
+    def getDescription(self):
+        return 'Assert contain text'    
         
     def execute(self, simulator):
         jscode = "_assert.contentMatch('%s', '%s');" % (self.value, self.selector)
@@ -44,7 +46,9 @@ class AssertCountAction(AssertAction):
         else:
             self.fromXML(xmlNode)
         self.passed = None
-        self.description = 'Assert element count'
+        
+    def getDescription(self):
+        return 'Assert element count'        
         
     def execute(self, simulator):
         jscode = "_assert.count('%s', '%s');" % (self.selector, self.context)
@@ -79,6 +83,8 @@ class AssertPresenceAction(AssertAction):
         self.selector = selector
         self.checkVisibility = checkVisibility
         
+    def getDescription(self):
+        return 'Assert element presence'        
         
 class AssertException(Exception):
     """Error on the injected Javascript code."""

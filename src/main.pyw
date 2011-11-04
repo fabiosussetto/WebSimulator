@@ -14,6 +14,7 @@ from PyQt4.QtWebKit import *
 from test_cases import wp3testcase, wp2testcase
 import qrc_resources
 from ui.assertion_dialog import AssertionDlg
+from ui.edit_dialog import EditDlg
 from ui.report_dialog import *
 from simulation.actions import *
 from utilities import *
@@ -69,8 +70,8 @@ class MainWindow(QMainWindow):
         
         self.simulator.load_js()
         #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
-        self.simulator.load('http://localhost/ajax_app/testapp/')
-        #self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/good_1.xml"))
+        self.simulator.load('http://localhost/ajax_app/testapp/before1')
+        self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/trenitalia.xml"))
         
     def openAssertionDlg(self, pickedData):
         self.assertionDlg = AssertionDlg(self.actionsModel, pickedData, self)
@@ -140,6 +141,8 @@ class MainWindow(QMainWindow):
         self.btnClearAction.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.connect(self.btnClearAction, SIGNAL("clicked()"), self._onClearActionClicked)    
         
+        self.connect(self.treeWidget, SIGNAL("doubleClicked(QModelIndex)"), self._editAction)    
+        
     def _onUrlGo(self):
         url = QString(self.urlBar.text())
         if url.indexOf('http', 0) == -1:
@@ -164,6 +167,7 @@ class MainWindow(QMainWindow):
             self.actionsModel.removeAllRows()     
         
     def _onPlayActionClicked(self):
+        self.actionsModel.resetState() 
         self.simulator.play(self.actionsModel.actions)
         
     def _onResetActionClicked(self):
@@ -204,6 +208,11 @@ class MainWindow(QMainWindow):
         
     def _onLoggerStatusChange(self, enabled):
         self.recordAction.setChecked(enabled)    
+        
+    def _editAction(self, index):
+        self.editDlg = EditDlg(index.internalPointer().action, self.actionsModel, index, self)
+        self.editDlg.setModal(False)
+        self.editDlg.show()
         
     def buildActions(self):
         pickerAction = Gui.createAction(self, "Invert", self._onPickerClicked, "Ctrl+P", "pipette", "Toggle picker", True, "toggled(bool)")

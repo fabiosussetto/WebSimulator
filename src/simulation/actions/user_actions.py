@@ -16,6 +16,9 @@ class VisitAction(UserAction):
             self.fromXML(xmlNode)
         self.description = "Visit '%s'" % self.url
         
+    def getDescription(self):
+        return "Visit '%s'" % self.url
+        
     def execute(self, simulator):
         simulator.load(self.url)
         
@@ -27,14 +30,16 @@ class VisitAction(UserAction):
     def toXML(self):
         element = super(VisitAction, self).toXML()
         element.set("label", self.description)
-        Et.SubElement(element, "url", {"value": self.url})
+        Et.SubElement(element, "url", {"value": unicode(self.url)})
         return element
             
 class FillAction(UserAction):
     
     def __init__(self, selector=None, value=None, label="", xmlNode=None):
         super(FillAction, self).__init__(selector, value, label, xmlNode)
-        self.description = "Fill input for '%s'" % self.label
+        
+    def getDescription(self):
+        return "Fill input for '%s'" % self.label
         
     def execute(self, simulator):
         #self._execute_native(simulator)
@@ -76,6 +81,9 @@ class ClickLinkAction(UserAction):
         super(ClickLinkAction, self).__init__(selector, None, label, xmlNode)
         self.description = "Click link '%s'" % self.label
         
+    def getDescription(self):
+        return "Click link '%s'" % self.label
+        
     def execute(self, simulator):
         if not simulator.assertExists(self.selector):
             self.error = True
@@ -97,7 +105,8 @@ class ClickLinkAction(UserAction):
         if not simulator.assertExists(self.selector):
             raise DomElementNotFound(self.selector)
         
-        jscode = "%s.smartSelector.select('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
+        #jscode = "%s.smartSelector.select('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
+        jscode = "%s('%s').simulate('click');" % (simulator.jQueryAlias, self.selector)
         simulator.runjs(jscode)
     
     def _execute_native(self, simulator):
@@ -117,6 +126,9 @@ class ClickButtonAction(UserAction):
     def __init__(self, selector=None, label=None, xmlNode=None):
         super(ClickButtonAction, self).__init__(selector, None, label, xmlNode)
         self.description = "Click button '%s'" % self.label
+        
+    def getDescription(self):
+        return "Click button '%s'" % self.label
         
     def execute(self, simulator):
         if not simulator.assertExists(self.selector):
@@ -141,6 +153,9 @@ class ClickRadioAction(UserAction):
     def __init__(self, selector=None, label=None, xmlNode=None):
         super(ClickRadioAction, self).__init__(selector, None, label, xmlNode)
         self.description = "Click radio '%s'" % self.label
+        
+    def getDescription(self):
+        return "Click radio '%s'" % self.label
         
     def execute(self, simulator):
         if not simulator.assertExists(self.selector):
@@ -167,6 +182,9 @@ class SelectAction(UserAction):
         if xmlNode is None:
             self.displayOption = unicode(displayOption)
         self.description = "Select option '%s' for '%s'" % (self.displayOption, self.label)
+    
+    def getDescription(self):
+        return "Select option '%s' for '%s'" % (self.displayOption, self.label)
         
     def execute(self, simulator):
         if not simulator.assertExists(self.selector):

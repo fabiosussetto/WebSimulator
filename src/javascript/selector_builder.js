@@ -29,16 +29,22 @@ function SelectorBuilder() {
   
   function _optimize(elem, path) {       
     elem.addClass('__check__');
-    for (var i = path.length - 1; i >= 0; i--) {
+    for (var i = path.length - 2; i >= 0; i--) {
       var test = path.slice(0);
       var ids = 0;
       $.each(test, function(index, item){
         if (item[0] == '#') ids++; 
       });
-      if (test[i].indexOf(':eq') > 0 && $(test[i]).is('ol li')) {
+      console.log(path.slice(0, i + 1));
+      if ($(path.slice(0, i + 1).join(' ')).parent().is('ol')) {
+        console.log('OOK');
         continue;
       }
       if (test[i][0] == '#') {
+        //mod
+        $('.__check__').removeClass('__check__');
+        return test.slice(i, test.length);;
+        //end mod
         var idElem = $(test[i]);
         if (test[i].match(/^([^0-9]+[0-9]+)|([0-9]+[^0-9]+)$/g)) {
           test.remove(i);

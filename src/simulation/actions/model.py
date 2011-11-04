@@ -171,6 +171,13 @@ class TreeModel(QAbstractItemModel):
         self.endRemoveRows()
         self.dirty = True 
         
+    def refresh(self):
+        prevActions = self.actions
+        self.reset()
+        self.removeAllRows()
+        self.actions = prevActions
+        self.setupModelData()
+        
     def resetState(self):
         for action in self.actions:
             action.reset()
@@ -181,7 +188,7 @@ class TreeModel(QAbstractItemModel):
             self.addItem(action)
     
     def addItem(self, action):
-        newparent = TreeItem(TreeItem.MAIN_NODE, action.description, self.rootItem, action)
+        newparent = TreeItem(TreeItem.MAIN_NODE, action.getDescription(), self.rootItem, action)
         
         if not isinstance(action, VisitAction):
             newparent.appendChild(TreeItem(TreeItem.DETAIL_NODE, "Selector: %s" % action.selector, newparent))

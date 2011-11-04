@@ -39,6 +39,7 @@ class Simulator(QObject):
     """ Protected properties """
     _load_status = None
     _is_loading = False
+    _is_ajax_loading = False
     
     jQueryAlias = '$' 
     
@@ -52,6 +53,7 @@ class Simulator(QObject):
         self.actionsModel = model
         self.webpage = QWebPage()
         self.webpage.settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
+        self.webpage.setNetworkAccessManager(CustomNetworkManager(self))
         
         self.webframe = self.webpage.mainFrame()
         self.networkManager = self.webpage.networkAccessManager()
@@ -78,8 +80,7 @@ class Simulator(QObject):
         request = reply.request()
         ajax_header = request.rawHeader(QByteArray("X-Requested-With"))
         if not ajax_header.isEmpty() and QString(ajax_header).compare("XMLHttpRequest", Qt.CaseInsensitive) == 0:
-            pass
-            #self._is_loading = False
+            self._is_ajax_loading = False
         
     def createView(self):
         self.webview = QWebView()
@@ -155,7 +156,7 @@ class Simulator(QObject):
             app.processEvents()
         
         start_time = time.time()
-        while self._is_loading:
+        while self._is_loading or self._is_ajax_loading:
             if timeout and time.time() - start_time > timeout:
                 self._is_loading = False
                 raise SimulatorTimeout("Timeout reached: %d seconds" % timeout)
@@ -227,8 +228,8 @@ class Simulator(QObject):
             raise Exception("Could not find text '%s' inside DOM element at '%s'" % (regex, selector))
     
     def assertExists(self, selector):
-        #jscode = "%s('%s').length" % (self.jQueryAlias, selector)
-        jscode = "%s.smartSelector.select('%s').length > 0" % (self.jQueryAlias, selector)
+        #jscode = "%s.smartSelector.select('%s').length > 0" % (self.jQueryAlias, selector)
+        jscode = "%s('%s').length > 0" % (self.jQueryAlias, selector)
         result = self.runjs(jscode).toBool()
         return result
     
@@ -252,6 +253,19 @@ class Simulator(QObject):
     """Rendered HTML in current page."""
     
     current_url = property(_get_current_url)
+ 
+class CustomNetworkManager(QNetworkAccessManager): 
+    
+    def __init__ (self, simulator, parent = None):
+        self.simulator = simulator
+        super(CustomNetworkManager, self).__init__(parent)
+        
+    def createRequest (self, op, request, device = None):    
+        ajax_header = request.rawHeader(QByteArray("X-Requested-With"))
+        if not ajax_header.isEmpty() and QString(ajax_header).compare("XMLHttpRequest", Qt.CaseInsensitive) == 0:
+            self.simulator._is_ajax_loading = True
+        return super(CustomNetworkManager, self).createRequest(op, request, device)
+        
     
 class SimulatorTimeout(Exception):
     """A timeout has occurred."""

@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://localhost/ajax_app/testapp/before1/index.php'" type="Visit">
+    <url value="http://localhost/ajax_app/testapp/after1/index.php" />
+  </useraction>
+  <assertion type="AssertContent">
+    <selector path="#main h1" />
+    <content value="Hello, world!" />
+  </assertion>
+  <useraction label="Internal page 1" type="ClickLink">
+    <selector path="#submenu-1 a:icontains(internal+page+1)" />
+  </useraction>
+  <assertion type="AssertContent">
+    <selector path="#main h1" />
+    <content value="Internal page 1" />
+  </assertion>
+</actions>
