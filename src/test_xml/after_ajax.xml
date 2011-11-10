@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<actions>
+  <useraction label="Visit 'http://localhost/ajax_app/testapp/before_form'" type="Visit">
+    <url value="http://localhost/ajax_app/testapp/after_form" />
+  </useraction>
+  <useraction label="" type="Fill">
+    <selector path="#contacts input[name=name]" />
+    <content value="Fabio" />
+  </useraction>
+  <useraction label="" type="Fill">
+    <selector path="#contacts input[name=email]" />
+    <content value="fabio@email.it" />
+  </useraction>
+  <useraction label="" type="Fill">
+    <selector path="#contacts textarea[name=message]" />
+    <content value="Test test" />
+  </useraction>
+  <useraction label="Send message" type="ClickButton">
+    <selector path="#contacts .btn" />
+  </useraction>
+  <assertion type="AssertContent">
+    <selector path="#main #message" />
+    <content value="Thanks, Fabio!" />
+  </assertion>
+</actions>

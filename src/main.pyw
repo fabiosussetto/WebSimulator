@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         self.simulator.load_js()
         #self.simulator.load('http://wptesi/wp_3-1-3/wp-admin')
         self.simulator.load('http://localhost/ajax_app/testapp/before1')
-        self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/trenitalia.xml"))
+        #self.actionsModel.loadFromXml(os.path.join(os.path.dirname(__file__), "sample_tests/trenitalia.xml"))
         
     def openAssertionDlg(self, pickedData):
         self.assertionDlg = AssertionDlg(self.actionsModel, pickedData, self)
